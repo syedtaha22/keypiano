@@ -28,9 +28,10 @@ pids/
 .env.local
 .env.*.local
 
-# Editor directories and files
+# Editor and tool directories
 .vscode/
 .idea/
+.claude/
 *.suo
 *.ntvs*
 *.njsproj
