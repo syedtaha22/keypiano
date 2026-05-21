@@ -1,0 +1,17 @@
+{
+  "name": "keypiano",
+  "version": "1.1.0",
+  "description": "Laptop keyboard piano with a physically-modelled grand piano synthesiser",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "lint": "eslint src --ext .js",
+    "lint:fix": "eslint src --ext .js --fix",
+    "format": "prettier --write \"src/**/*.js\""
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.0"
+  }
+}
