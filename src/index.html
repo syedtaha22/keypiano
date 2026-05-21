@@ -2,24 +2,79 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>KeyPiano</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
+    /* ── Reset ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Design tokens ── */
+    :root {
+      --bg:              #09090b;
+      --surface-1:       #111116;
+      --surface-2:       #18181f;
+      --surface-3:       #1e1e26;
+      --border:          #2c2c3a;
+      --border-subtle:   #1e1e28;
+
+      --gold:            #c49a2a;
+      --gold-bright:     #d4aa3a;
+      --gold-dim:        rgba(196,154,42,0.35);
+      --gold-glow:       rgba(196,154,42,0.14);
+      --gold-trace:      rgba(196,154,42,0.06);
+
+      --text-1:          #f0ece4;
+      --text-2:          #7a766e;
+      --text-3:          #3e3c38;
+
+      --ivory:           #f5f0e8;
+      --ivory-mid:       #e8e2d4;
+      --ivory-dim:       #d5cfc0;
+      --key-black-top:   #1c1c22;
+      --key-black-mid:   #131318;
+
+      --font-display:    'Cormorant Garamond', Georgia, serif;
+      --font-ui:         'Montserrat', system-ui, sans-serif;
+
+      --radius-sm:       4px;
+      --radius-md:       8px;
+      --radius-pill:     999px;
+
+      --ease:            cubic-bezier(0.4, 0, 0.2, 1);
+      --t-fast:          120ms;
+      --t-med:           200ms;
+    }
+
+    /* ── Base ── */
     body {
-      background: #0f172a;
-      color: #e2e8f0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: var(--font-ui);
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       user-select: none;
       overflow: hidden;
-      padding: 16px;
+      padding: 20px;
+    }
+
+    /* Subtle radial ambient glow behind everything */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 60%, rgba(196,154,42,0.03) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     #app {
+      position: relative;
+      z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -28,136 +83,226 @@
     }
 
     /* ── Header ── */
-    h1 {
-      font-size: 0.95rem;
-      font-weight: 300;
-      letter-spacing: 0.45em;
-      text-transform: uppercase;
-      color: #334155;
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
     }
 
-    /* ── Transport ── */
+    h1 {
+      font-family: var(--font-display);
+      font-size: 1.55rem;
+      font-weight: 300;
+      letter-spacing: 0.6em;
+      text-transform: uppercase;
+      color: var(--text-1);
+      text-indent: 0.6em;
+    }
+
+    .header-rule {
+      width: 40px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.7;
+    }
+
+    /* ── Transport bar ── */
     .transport {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-pill);
+      padding: 5px 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.03);
     }
+
+    /* Text transport button (Load) */
     .tbtn {
-      background: #1e293b;
-      border: 1px solid #263548;
-      color: #60a5fa;
-      border-radius: 5px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      border-radius: var(--radius-sm);
       cursor: pointer;
-      font-size: 0.68rem;
-      padding: 3px 10px;
-      line-height: 1.6;
-      transition: background 0.1s;
+      font-family: var(--font-ui);
+      font-size: 0.58rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      height: 26px;
+      transition: color var(--t-fast) var(--ease),
+                  border-color var(--t-fast) var(--ease),
+                  background var(--t-fast) var(--ease);
     }
-    .tbtn:hover:not(:disabled) { background: #263548; }
-    .tbtn:disabled { opacity: 0.28; cursor: not-allowed; }
+    .tbtn:hover:not(:disabled) {
+      color: var(--gold);
+      border-color: var(--gold-dim);
+      background: var(--gold-trace);
+    }
+    .tbtn:disabled { opacity: 0.22; cursor: not-allowed; }
+
+    /* Icon transport buttons (Play / Stop) */
+    .tbtn-icon {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color var(--t-fast) var(--ease),
+                  border-color var(--t-fast) var(--ease),
+                  background var(--t-fast) var(--ease);
+    }
+    .tbtn-icon:hover:not(:disabled) {
+      color: var(--gold-bright);
+      border-color: var(--gold-dim);
+      background: var(--gold-trace);
+    }
+    .tbtn-icon:disabled { opacity: 0.22; cursor: not-allowed; }
+
+    .transport-sep {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
     #piece-title {
-      font-size: 0.63rem;
-      color: #334155;
+      font-size: 0.6rem;
+      font-weight: 300;
+      letter-spacing: 0.06em;
       font-style: italic;
-      max-width: 180px;
+      color: var(--text-3);
+      max-width: 160px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    /* ── Controls ── */
+    /* ── Controls bar ── */
     .controls {
       display: flex;
       align-items: center;
       gap: 28px;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
+      padding: 8px 22px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.02);
     }
 
-    .octave-group { display: flex; align-items: center; gap: 8px; }
+    /* Octave group */
+    .octave-group { display: flex; align-items: center; gap: 10px; }
 
     .hint-badge {
-      font-family: 'SF Mono', 'Courier New', monospace;
-      font-size: 0.62rem;
-      font-weight: 700;
-      color: #334155;
-      background: #1e293b;
-      border: 1px solid #263548;
-      border-radius: 4px;
-      padding: 2px 6px;
+      font-family: var(--font-ui);
+      font-size: 0.52rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--text-3);
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      padding: 2px 5px;
     }
 
     .octave-display {
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 0;
       line-height: 1;
     }
-
     .octave-display .label {
-      font-size: 0.58rem;
+      font-size: 0.46rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #334155;
-      margin-bottom: 2px;
+      color: var(--text-3);
+      margin-bottom: 1px;
     }
 
     #octave-value {
-      font-size: 1.2rem;
-      font-weight: 600;
-      color: #60a5fa;
+      font-family: var(--font-display);
+      font-size: 1.45rem;
+      font-weight: 400;
+      color: var(--gold);
       min-width: 1.4rem;
       text-align: center;
+      line-height: 1;
     }
 
     .octave-btn {
-      background: #1e293b;
-      border: 1px solid #263548;
-      color: #60a5fa;
-      width: 24px;
-      height: 24px;
-      border-radius: 5px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      width: 22px;
+      height: 22px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
-      font-size: 0.7rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.1s, opacity 0.1s;
-      line-height: 1;
+      transition: color var(--t-fast) var(--ease),
+                  border-color var(--t-fast) var(--ease),
+                  background var(--t-fast) var(--ease);
     }
-    .octave-btn:hover:not(:disabled) { background: #263548; }
-    .octave-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+    .octave-btn:hover:not(:disabled) {
+      color: var(--gold);
+      border-color: var(--gold-dim);
+      background: var(--gold-trace);
+    }
+    .octave-btn:disabled { opacity: 0.18; cursor: not-allowed; }
 
-    .volume-group { display: flex; align-items: center; gap: 9px; }
+    /* Volume group */
+    .volume-group { display: flex; align-items: center; gap: 10px; }
     .volume-group .label {
-      font-size: 0.58rem;
+      font-size: 0.46rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #334155;
+      color: var(--text-3);
     }
 
     input[type="range"] {
       -webkit-appearance: none;
-      width: 100px; height: 3px;
-      background: #1e3a5f;
+      width: 86px;
+      height: 2px;
+      background: var(--surface-3);
       border-radius: 2px;
       outline: none;
       cursor: pointer;
     }
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 13px; height: 13px;
-      background: #3b82f6;
+      width: 11px;
+      height: 11px;
+      background: radial-gradient(circle at 35% 35%, var(--gold-bright), var(--gold));
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 5px rgba(59,130,246,0.5);
+      box-shadow: 0 0 6px rgba(196,154,42,0.55);
+      transition: transform var(--t-fast) var(--ease);
     }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
     #volume-value {
-      font-size: 0.7rem;
-      color: #60a5fa;
+      font-size: 0.6rem;
+      font-weight: 500;
+      color: var(--gold);
       min-width: 32px;
       font-variant-numeric: tabular-nums;
+      letter-spacing: 0.02em;
     }
 
-    /* ── Piano area (strip + viewport side by side) ── */
+    /* ── Piano area ── */
     #piano-area {
       display: flex;
       align-items: flex-end;
@@ -169,29 +314,41 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0;
-      width: 32px;
+      gap: 5px;
+      width: 30px;
+    }
+
+    .strip-label {
+      font-family: var(--font-ui);
+      font-size: 0.42rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
     }
 
     #strip-track {
       position: relative;
-      width: 30px;
+      width: 26px;
       height: 200px;
-      background: linear-gradient(180deg, #1d4ed8 0%, #1e293b 55%, #0f172a 100%);
-      border: 1px solid #263548;
-      border-radius: 15px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-pill);
       cursor: pointer;
       touch-action: none;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
     }
 
-    /* Fill indicator showing current sustain level */
     #strip-fill {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      border-radius: 15px;
-      background: rgba(96,165,250,0.18);
+      background: linear-gradient(0deg,
+        rgba(196,154,42,0.55) 0%,
+        rgba(196,154,42,0.18) 70%,
+        transparent 100%);
       pointer-events: none;
       transition: height 0.05s;
     }
@@ -200,32 +357,26 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
-      width: 26px;
-      height: 26px;
-      background: radial-gradient(circle at 40% 35%, #f8fafc, #cbd5e1);
+      width: 22px;
+      height: 22px;
+      background: radial-gradient(circle at 38% 32%, var(--ivory), var(--ivory-mid));
       border-radius: 50%;
       cursor: grab;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.3);
-      transition: box-shadow 0.1s;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.75),
+                  inset 0 1px 2px rgba(255,255,255,0.3);
+      transition: box-shadow var(--t-fast) var(--ease);
     }
-    #strip-thumb:active { cursor: grabbing; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+    #strip-thumb:active { cursor: grabbing; box-shadow: 0 1px 5px rgba(0,0,0,0.6); }
 
-    .strip-label {
-      font-family: 'SF Mono', 'Courier New', monospace;
-      font-size: 0.48rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #263548;
-      padding: 3px 0;
-    }
-
-    /* SPACE hint */
     .strip-hint {
-      font-family: 'SF Mono', 'Courier New', monospace;
-      font-size: 0.48rem;
-      color: #1e3a5f;
+      font-family: var(--font-ui);
+      font-size: 0.42rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
       text-align: center;
-      line-height: 1.3;
+      line-height: 1.4;
     }
 
     /* ── Piano viewport ── */
@@ -233,14 +384,23 @@
       overflow: hidden;
       height: 200px;
       position: relative;
-      /* width set by JS */
+      border-radius: 0 0 6px 6px;
+      /* Piano body frame */
+      border: 1px solid #2a2520;
+      border-top: 8px solid #1a1612;
+      box-shadow:
+        0 0 0 1px #0a0a0c,
+        0 24px 60px rgba(0,0,0,0.8),
+        0 8px 24px rgba(0,0,0,0.55),
+        0 0 40px rgba(196,154,42,0.04);
     }
 
     #piano {
       position: relative;
       height: 200px;
-      width: 2900px; /* 50 white keys × 58px */
-      transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
+      width: 2900px;
+      background: #0c0c10;
+      transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .white-keys {
@@ -252,130 +412,211 @@
     }
 
     /* ── Keys ── */
-    .key { cursor: pointer; transition: background 0.04s, box-shadow 0.04s, transform 0.04s; }
+    .key { cursor: pointer; }
 
     .white-key {
       flex-shrink: 0;
       width: 58px;
       height: 200px;
-      background: linear-gradient(180deg, #f1f5f9 0%, #dde3ec 100%);
-      border: 1px solid #64748b;
-      border-top: 2px solid #94a3b8;
-      border-radius: 0 0 6px 6px;
+      background: linear-gradient(180deg,
+        var(--ivory)     0%,
+        var(--ivory-mid) 55%,
+        var(--ivory-dim) 100%);
+      border-left: 1px solid #b8b0a0;
+      border-bottom: 2px solid #9a9080;
+      border-radius: 0 0 5px 5px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding-bottom: 10px;
-      box-shadow: inset -1px 0 1px rgba(0,0,0,0.06), inset 0 -4px 6px rgba(0,0,0,0.1), 2px 4px 7px rgba(0,0,0,0.45);
+      padding-bottom: 11px;
+      transition: background var(--t-fast) var(--ease),
+                  box-shadow var(--t-fast) var(--ease),
+                  transform var(--t-fast) var(--ease);
+      box-shadow:
+        inset -1px 0 0 rgba(255,255,255,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.85),
+        2px 6px 14px rgba(0,0,0,0.5);
     }
-    .white-key + .white-key { border-left: none; }
+    .white-key + .white-key { border-left-color: #c0b8a8; }
+
     .white-key:active,
     .white-key.active {
-      background: linear-gradient(180deg, #bfdbfe 0%, #93c5fd 100%);
-      transform: translateY(1px);
-      box-shadow: inset -1px 0 1px rgba(0,0,0,0.04), inset 0 -2px 3px rgba(0,0,0,0.06), 1px 2px 4px rgba(0,0,0,0.3);
+      background: linear-gradient(180deg, #f6e4a0 0%, #e8c85e 55%, #d4b040 100%);
+      transform: translateY(2px);
+      box-shadow:
+        inset -1px 0 0 rgba(255,255,255,0.2),
+        inset 0 -6px 12px rgba(196,154,42,0.35),
+        1px 2px 6px rgba(0,0,0,0.45);
     }
 
     .black-key {
       position: absolute;
       top: 0;
       width: 36px;
-      height: 120px;
-      background: linear-gradient(180deg, #1e293b 0%, #0f172a 65%, #080d14 100%);
-      border: 1px solid #000;
-      border-top: 2px solid #2d3f56;
-      border-radius: 0 0 5px 5px;
+      height: 122px;
+      background: linear-gradient(180deg,
+        #202026 0%,
+        #161618 30%,
+        #0e0e12 70%,
+        #0a0a0e 100%);
+      border-left: 1px solid #303038;
+      border-right: 1px solid #282830;
+      border-bottom: 2px solid #1a1a20;
+      border-radius: 0 0 4px 4px;
       display: flex;
       align-items: flex-end;
       justify-content: center;
       padding-bottom: 8px;
       z-index: 2;
-      box-shadow: 2px 5px 9px rgba(0,0,0,0.7), inset 0 -3px 5px rgba(0,0,0,0.5);
+      transition: background var(--t-fast) var(--ease),
+                  box-shadow var(--t-fast) var(--ease),
+                  transform var(--t-fast) var(--ease);
+      box-shadow:
+        3px 10px 20px rgba(0,0,0,0.9),
+        inset 0 2px 0 rgba(255,255,255,0.07),
+        inset -1px 0 0 rgba(255,255,255,0.03);
     }
+    /* Specular highlight on top edge of black key */
+    .black-key::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 2px;
+      right: 2px;
+      height: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
     .black-key:active,
     .black-key.active {
-      background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 65%, #1e3a8a 100%);
+      background: linear-gradient(180deg, #1e1804 0%, #150f02 30%, #0d0a02 70%, #080700 100%);
       transform: translateY(2px);
-      box-shadow: 1px 3px 5px rgba(0,0,0,0.55);
+      box-shadow:
+        1px 5px 10px rgba(0,0,0,0.75),
+        inset 0 -4px 8px rgba(196,154,42,0.22);
     }
 
-    /* ── Key labels: hidden by default, shown on active octave ── */
+    /* ── Key labels ── */
     .key-label {
-      font-family: 'SF Mono', 'Courier New', monospace;
-      font-size: 0.6rem;
+      font-family: var(--font-ui);
+      font-size: 0.5rem;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
       opacity: 0;
-      transition: opacity 0.1s;
+      transition: opacity 0.12s;
     }
-    .octave-active.white-key .key-label { opacity: 0.75; color: #64748b; }
-    .octave-active.black-key .key-label { opacity: 0.75; color: #334155; }
-    .white-key.active .key-label { opacity: 1 !important; color: #2563eb; }
-    .black-key.active .key-label { opacity: 1 !important; color: #93c5fd; }
+    .octave-active.white-key .key-label { opacity: 0.45; color: #7a6a50; }
+    .octave-active.black-key .key-label { opacity: 0.55; color: #a08858; }
+    .white-key.active .key-label { opacity: 1 !important; color: #6a4c10; }
+    .black-key.active .key-label { opacity: 1 !important; color: var(--gold); }
 
     .note-name {
-      font-size: 0.56rem;
+      font-size: 0.46rem;
       font-weight: 500;
-      color: #3d4f63;
-      margin-bottom: 3px;
+      color: #9c9488;
+      margin-bottom: 4px;
+      letter-spacing: 0.04em;
       transition: color 0.05s;
     }
-    .white-key.active .note-name { color: #3b82f6; }
+    .white-key.active .note-name { color: #6a4c10; }
+
+    /* Active octave range: very subtle warm tint */
+    .octave-active.white-key {
+      background: linear-gradient(180deg, #f7f2ea 0%, #ebe4d6 55%, #ddd5c4 100%);
+    }
+    .octave-active.black-key {
+      background: linear-gradient(180deg, #211f27 0%, #181620 30%, #100e16 70%, #0c0a12 100%);
+    }
 
     /* ── Fullscreen button ── */
     #btn-fullscreen {
       position: fixed;
-      top: 10px; right: 12px;
-      background: transparent;
-      border: 1px solid #263548;
-      border-radius: 5px;
-      color: #334155;
-      width: 26px; height: 26px;
-      font-size: 0.75rem;
+      top: 14px;
+      right: 16px;
+      background: var(--surface-1);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-3);
+      width: 26px;
+      height: 26px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: color 0.15s, border-color 0.15s;
+      transition: color var(--t-med) var(--ease), border-color var(--t-med) var(--ease);
       z-index: 100;
     }
-    #btn-fullscreen:hover { color: #60a5fa; border-color: #3b82f6; }
+    #btn-fullscreen:hover { color: var(--gold); border-color: var(--gold-dim); }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; }
+    }
   </style>
 </head>
 <body>
   <div id="app">
-    <h1>KeyPiano</h1>
+
+    <div class="header">
+      <h1>KeyPiano</h1>
+      <div class="header-rule"></div>
+    </div>
+
+    <div class="transport">
+      <button class="tbtn" id="btn-load">Load</button>
+      <input type="file" id="file-input" accept=".mid,.midi,.kps,.json" style="display:none">
+      <div class="transport-sep"></div>
+      <span id="piece-title">no file loaded</span>
+      <div class="transport-sep"></div>
+      <!-- Play -->
+      <button class="tbtn-icon" id="btn-play" disabled aria-label="Play">
+        <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor">
+          <path d="M1.5 1.2 9 6 1.5 10.8V1.2z"/>
+        </svg>
+      </button>
+      <!-- Stop -->
+      <button class="tbtn-icon" id="btn-stop" disabled aria-label="Stop">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor">
+          <rect x="1.5" y="1.5" width="7" height="7" rx="0.75"/>
+        </svg>
+      </button>
+    </div>
 
     <div class="controls">
       <div class="octave-group">
         <span class="hint-badge">Z</span>
-        <button class="octave-btn" id="btn-down">&#9664;</button>
+        <!-- Octave down -->
+        <button class="octave-btn" id="btn-down" aria-label="Octave down">
+          <svg width="8" height="10" viewBox="0 0 8 10" fill="none"
+               stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6,1 2,5 6,9"/>
+          </svg>
+        </button>
         <div class="octave-display">
           <span class="label">Octave</span>
           <span id="octave-value">4</span>
         </div>
-        <button class="octave-btn" id="btn-up">&#9654;</button>
+        <!-- Octave up -->
+        <button class="octave-btn" id="btn-up" aria-label="Octave up">
+          <svg width="8" height="10" viewBox="0 0 8 10" fill="none"
+               stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="2,1 6,5 2,9"/>
+          </svg>
+        </button>
         <span class="hint-badge">X</span>
       </div>
 
       <div class="volume-group">
         <span class="label">Vol</span>
-        <input type="range" id="volume-slider" min="0" max="100" value="70">
+        <input type="range" id="volume-slider" min="0" max="100" value="70" aria-label="Volume">
         <span id="volume-value">70%</span>
       </div>
     </div>
 
-    <div class="transport">
-      <button class="tbtn" id="btn-load">Load ♩</button>
-      <input type="file" id="file-input" accept=".mid,.midi,.kps,.json" style="display:none">
-      <span id="piece-title">no file loaded</span>
-      <button class="tbtn" id="btn-play" disabled>&#9654;</button>
-      <button class="tbtn" id="btn-stop" disabled>&#9632;</button>
-    </div>
-
     <div id="piano-area">
-      <!-- GarageBand-style sustain strip -->
+      <!-- Sustain strip -->
       <div id="sustain-strip">
         <span class="strip-label">Max</span>
         <div id="strip-track">
@@ -384,19 +625,27 @@
         </div>
         <span class="strip-label">Off</span>
         <span class="strip-hint">SUS<br>TAIN</span>
-        <span class="strip-hint" style="color:#1e3a5f;font-size:0.42rem">SPACE</span>
+        <span class="strip-hint" style="font-size:0.38rem;letter-spacing:0.1em;margin-top:1px">SPACE</span>
       </div>
 
       <!-- Scrollable piano viewport -->
       <div id="piano-viewport">
         <div id="piano">
-          <!-- built by renderer.js -->
+          <!-- keys built by renderer.js -->
         </div>
       </div>
     </div>
+
   </div>
 
-  <button id="btn-fullscreen" title="Toggle fullscreen (F11)">&#x26F6;</button>
+  <!-- Fullscreen toggle -->
+  <button id="btn-fullscreen" title="Toggle fullscreen (F11)" aria-label="Toggle fullscreen">
+    <svg width="12" height="12" viewBox="0 0 14 14" fill="none"
+         stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M1 5V1h4M9 1h4v4M13 9v4H9M5 13H1V9"/>
+    </svg>
+  </button>
+
   <script type="module" src="renderer.js"></script>
 </body>
 </html>
