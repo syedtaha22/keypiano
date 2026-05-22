@@ -43,15 +43,25 @@ export function scrollToActiveRange() {
   let tx = -(gIdx * WKW - Math.floor(vw / 4));
   tx = Math.min(0, Math.max(-(totalW - vw), tx));
   piano.style.transform = `translateX(${tx.toFixed(1)}px)`;
+
+  const pianoU = document.getElementById('piano-upper');
+  if (pianoU) { pianoU.style.transform = `translateX(${tx.toFixed(1)}px)`; }
 }
 
 /**
- * Recalculate the piano viewport width based on the current window size,
+ * Recalculate the piano viewport width based on its parent container,
  * then re-scroll to keep the active range visible.
  */
 export function updateViewport() {
-  const sw = document.getElementById('sustain-strip').offsetWidth + 14;
-  const vw = Math.min(50 * WKW, Math.max(8 * WKW, window.innerWidth - sw - 40));
+  const area = document.getElementById('piano-area');
+  const ss   = document.getElementById('sustain-strip');
+  const containerW = area ? area.offsetWidth : window.innerWidth;
+  const sw = ss ? ss.offsetWidth + 14 : 0;
+  const vw = Math.min(50 * WKW, Math.max(8 * WKW, containerW - sw - 4));
   document.getElementById('piano-viewport').style.width = `${vw}px`;
+
+  const vpU = document.getElementById('piano-viewport-upper');
+  if (vpU) {vpU.style.width = `${vw}px`;}
+
   scrollToActiveRange();
 }

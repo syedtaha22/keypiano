@@ -6,6 +6,8 @@ let masterGain = null;
 let playbackGain = null;
 /** @type {DynamicsCompressorNode|null} */
 let compressor = null;
+/** @type {AnalyserNode|null} */
+let analyser = null;
 
 /**
  * Returns the shared AudioContext, creating it on first call.
@@ -22,13 +24,18 @@ export function getCtx() {
   if (!audioCtx) {
     audioCtx = new AudioContext();
 
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.85;
+
     compressor = audioCtx.createDynamicsCompressor();
     compressor.threshold.value = -14;
     compressor.knee.value      = 8;
     compressor.ratio.value     = 4;
     compressor.attack.value    = 0.003;
     compressor.release.value   = 0.30;
-    compressor.connect(audioCtx.destination);
+    compressor.connect(analyser);
+    analyser.connect(audioCtx.destination);
 
     masterGain = audioCtx.createGain();
     masterGain.gain.value = 0.65;
@@ -56,6 +63,12 @@ export function getMasterGain() {
 export function getPlaybackGain() {
   getCtx();
   return playbackGain;
+}
+
+/** AnalyserNode for waveform/spectrum visualisation. */
+export function getAnalyser() {
+  getCtx();
+  return analyser;
 }
 
 /**

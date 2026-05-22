@@ -18,6 +18,25 @@ export const state = {
   sustainedSounds: new Map(),
   /** keyboard event codes currently held down */
   heldCodes:       new Set(),
+
+  /* ── Envelope multipliers (applied to zone base values) ── */
+  attackMult:    1.0,
+  decayMult:     1.0,
+  susLevelMult:  1.0,
+  releaseMult:   1.0,
+  detuneScale:   1.0,
+
+  /* ── Oscillator preset ── */
+  waveformPreset: 'piano',
+
+  /* ── Metronome ── */
+  metronomeEnabled:   false,
+  metronomeBPM:       120,
+  metronomeBeatsPerBar: 4,
+
+  /* ── Layout ── */
+  dualDock: false,
+  vizMode:  'scope',
 };
 
 /**

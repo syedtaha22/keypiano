@@ -5,10 +5,10 @@ const path = require('path');
 
 function createWindow() {
   const win = new BrowserWindow({
-    width: 560,
-    height: 400,
-    minWidth: 480,
-    minHeight: 340,
+    width: 1280,
+    height: 800,
+    minWidth: 900,
+    minHeight: 620,
     title: 'KeyPiano',
     backgroundColor: '#0f172a',
     webPreferences: {

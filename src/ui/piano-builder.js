@@ -5,13 +5,14 @@ import {
 import { pressNote, releaseNote } from './interactions.js';
 
 /**
- * Build and insert all piano key DOM elements into #piano.
+ * Build and insert all piano key DOM elements into the target container.
  * White keys are rendered as flex children; black keys are absolutely
  * positioned over them using precomputed pixel offsets.
- * Calls addKeyMouseListeners() when done.
+ *
+ * @param {string} [targetId='piano'] - ID of the container element
  */
-export function buildPiano() {
-  const piano = document.getElementById('piano');
+export function buildPiano(targetId = 'piano') {
+  const piano = document.getElementById(targetId);
   const wDiv  = document.createElement('div');
   wDiv.className = 'white-keys';
 
@@ -58,15 +59,17 @@ export function buildPiano() {
 
   piano.appendChild(wDiv);
   blacks.forEach(b => piano.appendChild(b));
-  addKeyMouseListeners();
+  addKeyMouseListeners(piano);
 }
 
 /**
  * Attach mousedown / mouseup / mouseleave handlers to every .key element
- * so that clicking the on-screen piano plays notes.
+ * inside the given piano container.
+ *
+ * @param {Element} [container=document] - Scope for querySelector
  */
-export function addKeyMouseListeners() {
-  document.querySelectorAll('.key').forEach(key => {
+export function addKeyMouseListeners(container = document) {
+  container.querySelectorAll('.key').forEach(key => {
     const oct = parseInt(key.dataset.oct);
     const ni  = parseInt(key.dataset.ni);
     const sid = `mouse_${oct}_${ni}`;

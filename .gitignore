@@ -42,3 +42,6 @@ Thumbs.db
 
 # Coverage
 coverage/
+
+# Test artifacts
+screenshot.png

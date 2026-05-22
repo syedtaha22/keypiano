@@ -109,10 +109,14 @@ export function startSound(ni, oct) {
   const wave = getWave(zone, ctx);
   const perG = 1 / zone.strings;
 
+  const attack  = zone.attack  * state.attackMult;
+  const decayTC = zone.decayTC * state.decayMult;
+  const susLvl  = zone.susLevel * state.susLevelMult;
+
   const gn = ctx.createGain();
   gn.gain.setValueAtTime(0, now);
-  gn.gain.linearRampToValueAtTime(state.volume, now + zone.attack);
-  gn.gain.setTargetAtTime(state.volume * zone.susLevel, now + zone.attack, zone.decayTC);
+  gn.gain.linearRampToValueAtTime(state.volume, now + attack);
+  gn.gain.setTargetAtTime(state.volume * susLvl, now + attack, decayTC);
   gn.connect(getMasterGain());
 
   const oscs = zone.detunes.map(d => {
@@ -121,7 +125,7 @@ export function startSound(ni, oct) {
     const o = ctx.createOscillator();
     o.setPeriodicWave(wave);
     o.frequency.value = freq;
-    o.detune.value = d;
+    o.detune.value = d * state.detuneScale;
     o.connect(og);
     og.connect(gn);
     o.start(now);
@@ -159,7 +163,7 @@ export function stopSound(s) {
   const now = ctx.currentTime;
   s.gainNode.gain.cancelScheduledValues(now);
   s.gainNode.gain.setValueAtTime(s.gainNode.gain.value, now);
-  s.gainNode.gain.linearRampToValueAtTime(0, now + s.zone.release);
+  s.gainNode.gain.linearRampToValueAtTime(0, now + s.zone.release * state.releaseMult);
   setTimeout(() => {
     s.oscs.forEach(o => { try { o.stop(); } catch (_) {} });
   }, (s.zone.release + 0.1) * 1000);
