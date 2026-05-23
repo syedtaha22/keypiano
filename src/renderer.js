@@ -462,34 +462,39 @@ function setupPianoDrag(vpId, pianoId) {
   if (!vp) { return; }
 
   let dragging = false;
-  let startX   = 0;
-  let startTx  = 0;
+  let lastX    = 0;
 
   vp.addEventListener('mousedown', e => {
-    if (e.target.closest('.key')) { return; }
+    if (e.button !== 1) { return; } // middle mouse button only
+    e.preventDefault(); // suppress browser auto-scroll cursor
     dragging = true;
-    startX   = e.clientX;
-    const t  = document.getElementById(pianoId)?.style.transform ?? '';
-    const m  = t.match(/translateX\(([^p]+)px\)/);
-    startTx  = m ? parseFloat(m[1]) : 0;
+    lastX    = e.clientX;
     vp.style.cursor = 'grabbing';
-    e.preventDefault();
+    vp.classList.add('dragging');
+    const p = document.getElementById(pianoId);
+    if (p) { p.style.transition = 'none'; }
   });
 
   document.addEventListener('mousemove', e => {
     if (!dragging) { return; }
     const piano  = document.getElementById(pianoId);
     if (!piano) { return; }
+    const delta  = e.clientX - lastX;
+    lastX        = e.clientX;
     const totalW = 49 * WKW;
     const vw     = vp.offsetWidth;
-    const tx     = Math.min(0, Math.max(-(totalW - vw), startTx + (e.clientX - startX)));
-    piano.style.transform = `translateX(${tx.toFixed(1)}px)`;
+    const m      = piano.style.transform.match(/translateX\(([^p]+)px\)/);
+    const cur    = m ? parseFloat(m[1]) : 0;
+    piano.style.transform = `translateX(${Math.min(0, Math.max(-(totalW - vw), cur + delta)).toFixed(1)}px)`;
   });
 
-  document.addEventListener('mouseup', () => {
-    if (!dragging) { return; }
+  document.addEventListener('mouseup', e => {
+    if (!dragging || e.button !== 1) { return; }
     dragging = false;
     vp.style.cursor = 'grab';
+    vp.classList.remove('dragging');
+    const p = document.getElementById(pianoId);
+    if (p) { p.style.transition = ''; }
   });
 }
 

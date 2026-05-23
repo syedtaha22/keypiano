@@ -402,6 +402,8 @@
 
     /* ── Keys ── */
     .key { cursor: pointer; }
+    #piano-viewport.dragging .key,
+    #piano-viewport-upper.dragging .key { cursor: grabbing; }
     .white-key {
       flex-shrink: 0; width: 58px; height: var(--wkh);
       background: linear-gradient(180deg, var(--ivory) 0%, var(--ivory-mid) 55%, var(--ivory-dim) 100%);
@@ -413,7 +415,7 @@
       box-shadow: inset -1px 0 0 rgba(255,255,255,0.55), inset 0 1px 0 rgba(255,255,255,0.85), 2px 6px 14px rgba(0,0,0,0.5);
     }
     .white-key + .white-key { border-left-color: #c0b8a8; }
-    .white-key:active, .white-key.active {
+    .white-key.active {
       background: linear-gradient(180deg, #f6e4a0 0%, #e8c85e 55%, #d4b040 100%);
       transform: translateY(2px);
       box-shadow: inset -1px 0 0 rgba(255,255,255,0.2), inset 0 -6px 12px rgba(196,154,42,0.35), 1px 2px 6px rgba(0,0,0,0.45);
@@ -432,7 +434,7 @@
       content: ''; position: absolute; top: 0; left: 2px; right: 2px; height: 16px;
       background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%); pointer-events: none;
     }
-    .black-key:active, .black-key.active {
+    .black-key.active {
       background: linear-gradient(180deg, #1e1804 0%, #150f02 30%, #0d0a02 70%, #080700 100%);
       transform: translateY(2px);
       box-shadow: 1px 5px 10px rgba(0,0,0,0.75), inset 0 -4px 8px rgba(196,154,42,0.22);

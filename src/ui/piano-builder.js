@@ -79,7 +79,7 @@ export function addKeyMouseListeners(container = document) {
     const sid = `mouse_${oct}_${ni}`;
     let held  = false;
 
-    key.addEventListener('mousedown',  ev => { ev.preventDefault(); held = true;  pressNote(ni, oct, sid); });
+    key.addEventListener('mousedown',  ev => { if (ev.button !== 0) { return; } ev.preventDefault(); held = true;  pressNote(ni, oct, sid); });
     key.addEventListener('mouseup',    ()  => { if (!held) {return;} held = false; releaseNote(sid); });
     key.addEventListener('mouseleave', ()  => { if (!held) {return;} held = false; releaseNote(sid); });
   });
