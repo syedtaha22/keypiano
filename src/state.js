@@ -28,15 +28,27 @@ export const state = {
 
   /* ── Oscillator preset ── */
   waveformPreset: 'piano',
+  harmonicBright: 0.5,
 
   /* ── Metronome ── */
   metronomeEnabled:   false,
   metronomeBPM:       120,
   metronomeBeatsPerBar: 4,
 
+  /* ── Upper piano (dual dock) ── */
+  upperOctave:    6,
+  upperNoteShift: 0,
+
   /* ── Layout ── */
   dualDock: false,
   vizMode:  'scope',
+
+  /* ── Accent colour (CSS custom property) ── */
+  accentKey: 'gold',
+
+  /* ── Keyboard mode ── */
+  strictRows:     false,
+  whiteKeyStart:  21,   // white key index where A starts in strict mode (21 = C4)
 };
 
 /**

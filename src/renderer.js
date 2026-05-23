@@ -1,14 +1,19 @@
 import { state } from './state.js';
-import { CODE_MAP, OCT_MIN, OCT_MAX } from './constants.js';
+import {
+  CODE_MAP, OCT_MIN, OCT_MAX, WKW, NI_TO_WHITE_POS,
+  BOTTOM_ROW_CODES, TOP_ROW_CODES, MAX_WK_START,
+  whiteKeyAt, getStrictTopRow,
+} from './constants.js';
 import { shiftedNote } from './state.js';
 import { buildPiano } from './ui/piano-builder.js';
 import { initSustainStrip, setSustain } from './ui/sustain-strip.js';
-import { refreshOctaveUI, updateViewport } from './ui/viewport.js';
+import { refreshOctaveUI, refreshUpperOctaveUI, updateViewport } from './ui/viewport.js';
 import { pressNote, releaseNote } from './ui/interactions.js';
 import { schedulePlayback, stopPlayback } from './audio/playback.js';
 import { parseMidi } from './parsers/midi.js';
 import { parseKPS } from './parsers/kps.js';
-import { getAnalyser } from './audio/context.js';
+import { getAnalyser, setReverb, setRoomSize, setBassEQ, setTrebleEQ } from './audio/context.js';
+import { clearWaveCache } from './audio/piano-model.js';
 import { startMetronome, stopMetronome } from './audio/metronome.js';
 
 /* ── Keyboard ─────────────────────────────────────────────────────────── */
@@ -16,8 +21,24 @@ import { startMetronome, stopMetronome } from './audio/metronome.js';
 document.addEventListener('keydown', e => {
   if (e.repeat) { return; }
 
-  if (e.code === 'ArrowLeft')  { e.preventDefault(); state.noteShift--; refreshOctaveUI(); return; }
-  if (e.code === 'ArrowRight') { e.preventDefault(); state.noteShift++; refreshOctaveUI(); return; }
+  if (e.code === 'ArrowLeft') {
+    e.preventDefault();
+    if (state.strictRows) {
+      if (state.whiteKeyStart > 0) { state.whiteKeyStart--; refreshOctaveUI(); }
+    } else {
+      state.noteShift--; refreshOctaveUI();
+    }
+    return;
+  }
+  if (e.code === 'ArrowRight') {
+    e.preventDefault();
+    if (state.strictRows) {
+      if (state.whiteKeyStart < MAX_WK_START) { state.whiteKeyStart++; refreshOctaveUI(); }
+    } else {
+      state.noteShift++; refreshOctaveUI();
+    }
+    return;
+  }
 
   if (e.code === 'Space') {
     e.preventDefault();
@@ -31,19 +52,39 @@ document.addEventListener('keydown', e => {
   }
 
   if (e.code === 'KeyZ') {
-    if (state.currentOctave > OCT_MIN) { state.currentOctave--; state.noteShift = 0; refreshOctaveUI(); }
+    if (state.strictRows) {
+      if (state.whiteKeyStart >= 7) { state.whiteKeyStart -= 7; refreshOctaveUI(); }
+    } else {
+      if (state.currentOctave > OCT_MIN) { state.currentOctave--; state.noteShift = 0; refreshOctaveUI(); }
+    }
     return;
   }
   if (e.code === 'KeyX') {
-    if (state.currentOctave < OCT_MAX) { state.currentOctave++; state.noteShift = 0; refreshOctaveUI(); }
+    if (state.strictRows) {
+      if (state.whiteKeyStart + 7 <= MAX_WK_START) { state.whiteKeyStart += 7; refreshOctaveUI(); }
+    } else {
+      if (state.currentOctave < OCT_MAX) { state.currentOctave++; state.noteShift = 0; refreshOctaveUI(); }
+    }
     return;
   }
   if (e.code === 'F11') { e.preventDefault(); toggleFullscreen(); return; }
 
-  const def = CODE_MAP[e.code];
-  if (!def || state.heldCodes.has(e.code)) { return; }
+  if (!CODE_MAP[e.code] || state.heldCodes.has(e.code)) { return; }
   state.heldCodes.add(e.code);
-  const info = shiftedNote(def);
+
+  let info;
+  if (state.strictRows) {
+    const bi = BOTTOM_ROW_CODES.indexOf(e.code);
+    const ti = TOP_ROW_CODES.indexOf(e.code);
+    if (bi !== -1) {
+      info = whiteKeyAt(state.whiteKeyStart + bi);
+    } else if (ti !== -1) {
+      info = getStrictTopRow(state.whiteKeyStart)[ti]; // null = gap, no black key here
+    }
+    if (!info) { return; }
+  } else {
+    info = shiftedNote(CODE_MAP[e.code]);
+  }
   pressNote(info.ni, info.oct, `kbd_${e.code}`);
 });
 
@@ -53,13 +94,30 @@ document.addEventListener('keyup', e => {
   releaseNote(`kbd_${e.code}`);
 });
 
-/* ── Octave controls ──────────────────────────────────────────────────── */
+/* ── Octave controls (lower) ──────────────────────────────────────────── */
 
 document.getElementById('btn-down').addEventListener('click', () => {
-  if (state.currentOctave > OCT_MIN) { state.currentOctave--; state.noteShift = 0; refreshOctaveUI(); }
+  if (state.strictRows) {
+    if (state.whiteKeyStart >= 7) { state.whiteKeyStart -= 7; refreshOctaveUI(); }
+  } else {
+    if (state.currentOctave > OCT_MIN) { state.currentOctave--; state.noteShift = 0; refreshOctaveUI(); }
+  }
 });
 document.getElementById('btn-up').addEventListener('click', () => {
-  if (state.currentOctave < OCT_MAX) { state.currentOctave++; state.noteShift = 0; refreshOctaveUI(); }
+  if (state.strictRows) {
+    if (state.whiteKeyStart + 7 <= MAX_WK_START) { state.whiteKeyStart += 7; refreshOctaveUI(); }
+  } else {
+    if (state.currentOctave < OCT_MAX) { state.currentOctave++; state.noteShift = 0; refreshOctaveUI(); }
+  }
+});
+
+/* ── Octave controls (upper piano) ───────────────────────────────────── */
+
+document.getElementById('btn-down-upper').addEventListener('click', () => {
+  if (state.upperOctave > OCT_MIN) { state.upperOctave--; refreshUpperOctaveUI(); }
+});
+document.getElementById('btn-up-upper').addEventListener('click', () => {
+  if (state.upperOctave < OCT_MAX) { state.upperOctave++; refreshUpperOctaveUI(); }
 });
 
 /* ── Volume slider (dock) ─────────────────────────────────────────────── */
@@ -152,6 +210,17 @@ document.getElementById('chk-note-names').addEventListener('change', function ()
 document.getElementById('chk-key-hints').addEventListener('change', function () {
   document.body.classList.toggle('hide-hints', !this.checked);
 });
+document.getElementById('chk-strict-rows').addEventListener('change', function () {
+  state.strictRows = this.checked;
+  if (this.checked) {
+    // Snap whiteKeyStart to the nearest white key where A currently lands
+    const aNote  = shiftedNote(CODE_MAP['KeyA']);
+    const oct    = Math.max(OCT_MIN, Math.min(OCT_MAX, aNote.oct));
+    const wkPos  = NI_TO_WHITE_POS[aNote.ni];
+    state.whiteKeyStart = Math.max(0, Math.min(MAX_WK_START, (oct - OCT_MIN) * 7 + wkPos));
+  }
+  refreshOctaveUI();
+});
 
 /* ── Metronome ────────────────────────────────────────────────────────── */
 
@@ -205,10 +274,15 @@ document.getElementById('btn-layout-dual').addEventListener('click', () => {
       buildPiano('piano-upper');
     }
     updateViewport();
+    refreshUpperOctaveUI();
   }
 });
 
 /* ── Waveform visualizer ──────────────────────────────────────────────── */
+
+function getAccentColor() {
+  return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c49a2a';
+}
 
 function startVizLoop() {
   const canvas  = document.getElementById('waveform-canvas');
@@ -231,11 +305,13 @@ function startVizLoop() {
     ctx2d.fillStyle = '#09090b';
     ctx2d.fillRect(0, 0, W, H);
 
+    const accent = getAccentColor();
+
     if (state.vizMode === 'scope') {
       analyser.getByteTimeDomainData(timeBuf);
-      ctx2d.strokeStyle = 'rgba(196,154,42,0.9)';
+      ctx2d.strokeStyle = accent;
       ctx2d.lineWidth   = 1.5;
-      ctx2d.shadowColor = 'rgba(196,154,42,0.35)';
+      ctx2d.shadowColor = accent;
       ctx2d.shadowBlur  = 5;
       ctx2d.beginPath();
       const step = bufLen / W;
@@ -248,15 +324,15 @@ function startVizLoop() {
       ctx2d.stroke();
     } else {
       analyser.getByteFrequencyData(freqBuf);
-      const bars  = 96;
-      const barW  = W / bars;
-      const gold  = 'rgba(196,154,42,';
+      const bars = 96;
+      const barW = W / bars;
+      ctx2d.fillStyle = accent;
       for (let i = 0; i < bars; i++) {
         const h = (freqBuf[i] / 255) * H;
-        const a = 0.4 + (freqBuf[i] / 255) * 0.55;
-        ctx2d.fillStyle = gold + a + ')';
+        ctx2d.globalAlpha = 0.4 + (freqBuf[i] / 255) * 0.55;
         ctx2d.fillRect(Math.floor(i * barW), H - h, Math.max(1, barW - 1), h);
       }
+      ctx2d.globalAlpha = 1;
     }
   }
   draw();
@@ -280,6 +356,7 @@ document.querySelectorAll('.preset-btn').forEach(btn => {
     document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     state.waveformPreset = btn.dataset.preset;
+    clearWaveCache();
   });
 });
 
@@ -295,39 +372,41 @@ function knobArcDash(v) {
 
 function formatKnobVal(id, v) {
   switch (id) {
-    case 'detune':       return `${Math.round((v * 2 - 1) * 100)}¢`;
-    case 'harmonic':     return `${Math.round(v * 100)}%`;
-    case 'attack':       return `${(0.1 + v * 3.9).toFixed(1)}×`;
-    case 'decay':        return `${(0.1 + v * 3.9).toFixed(1)}×`;
-    case 'sustain-level':return `${(v * 2).toFixed(1)}×`;
-    case 'release':      return `${(0.1 + v * 3.9).toFixed(1)}×`;
-    case 'reverb':       return `${Math.round(v * 100)}%`;
-    case 'room':         return `${Math.round(v * 100)}%`;
-    case 'bass-eq':      return `${Math.round((v * 2 - 1) * 12)}dB`;
-    case 'treble-eq':    return `${Math.round((v * 2 - 1) * 12)}dB`;
-    case 'master-vol':   return `${Math.round(v * 100)}%`;
-    case 'sus-pedal':    return v < 0.01 ? 'Off' : `${Math.round(v * 100)}%`;
-    default:             return `${Math.round(v * 100)}%`;
+    case 'detune':        return `${Math.round((v * 2 - 1) * 100)}¢`;
+    case 'harmonic':      return v < 0.06 ? 'Sine' : v > 0.94 ? 'Bright' : `${Math.round(v * 100)}%`;
+    case 'attack':        return `${Math.round(0.1 + v * v * 99.9)}×`;
+    case 'decay':         return `${(0.1 + v * 3.9).toFixed(1)}×`;
+    case 'sustain-level': return `${(v * 2).toFixed(1)}×`;
+    case 'release':       return `${(0.1 + v * 3.9).toFixed(1)}×`;
+    case 'reverb':        return `${Math.round(v * 100)}%`;
+    case 'room':          return `${(0.3 + v * 4.7).toFixed(1)}s`;
+    case 'bass-eq':       return `${Math.round((v * 2 - 1) * 12)}dB`;
+    case 'treble-eq':     return `${Math.round((v * 2 - 1) * 12)}dB`;
+    case 'master-vol':    return `${Math.round(v * 100)}%`;
+    case 'sus-pedal':     return v < 0.01 ? 'Off' : `${Math.round(v * 100)}%`;
+    default:              return `${Math.round(v * 100)}%`;
   }
 }
 
 function applyKnobValue(id, v) {
   switch (id) {
     case 'detune':        state.detuneScale    = v * 2;                    break;
-    case 'attack':        state.attackMult     = 0.1 + v * 3.9;            break;
+    case 'harmonic':      state.harmonicBright = v; clearWaveCache();       break;
+    case 'attack':        state.attackMult     = 0.1 + v * v * 99.9;       break;
     case 'decay':         state.decayMult      = 0.1 + v * 3.9;            break;
     case 'sustain-level': state.susLevelMult   = v * 2;                    break;
     case 'release':       state.releaseMult    = 0.1 + v * 3.9;            break;
+    case 'reverb':        setReverb(v);                                     break;
+    case 'room':          setRoomSize(v);                                   break;
+    case 'bass-eq':       setBassEQ((v * 2 - 1) * 12);                     break;
+    case 'treble-eq':     setTrebleEQ((v * 2 - 1) * 12);                   break;
     case 'master-vol': {
       state.volume = v;
       document.getElementById('volume-slider').value  = Math.round(v * 100);
       document.getElementById('volume-value').textContent = `${Math.round(v * 100)}%`;
       break;
     }
-    case 'sus-pedal': {
-      setSustain(v);
-      break;
-    }
+    case 'sus-pedal': setSustain(v); break;
   }
 }
 
@@ -373,6 +452,165 @@ function setupKnobs() {
   });
 }
 
+/* ── Piano drag scroll ────────────────────────────────────────────────── */
+
+function setupPianoDrag(vpId, pianoId) {
+  const vp = document.getElementById(vpId);
+  if (!vp) { return; }
+
+  let dragging = false;
+  let startX   = 0;
+  let startTx  = 0;
+
+  vp.addEventListener('mousedown', e => {
+    if (e.target.closest('.key')) { return; }
+    dragging = true;
+    startX   = e.clientX;
+    const t  = document.getElementById(pianoId)?.style.transform ?? '';
+    const m  = t.match(/translateX\(([^p]+)px\)/);
+    startTx  = m ? parseFloat(m[1]) : 0;
+    vp.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', e => {
+    if (!dragging) { return; }
+    const piano  = document.getElementById(pianoId);
+    if (!piano) { return; }
+    const totalW = 50 * WKW;
+    const vw     = vp.offsetWidth;
+    const tx     = Math.min(0, Math.max(-(totalW - vw), startTx + (e.clientX - startX)));
+    piano.style.transform = `translateX(${tx.toFixed(1)}px)`;
+  });
+
+  document.addEventListener('mouseup', () => {
+    if (!dragging) { return; }
+    dragging = false;
+    vp.style.cursor = 'grab';
+  });
+}
+
+/* ── Blender-style pane resize ────────────────────────────────────────── */
+
+function setupPaneResize() {
+  const area = document.getElementById('studio-area');
+
+  /* Vertical divider — resizes left/right columns */
+  const rhV = document.getElementById('rh-v');
+  if (rhV && area) {
+    let dragging = false;
+    let startX   = 0;
+    let startLeft = 0;
+
+    rhV.addEventListener('mousedown', e => {
+      dragging  = true;
+      startX    = e.clientX;
+      startLeft = rhV.getBoundingClientRect().left - area.getBoundingClientRect().left - 8;
+      rhV.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) { return; }
+      const available = area.offsetWidth - 16 - 6;
+      const newLeft   = Math.max(120, Math.min(available - 120, startLeft + (e.clientX - startX)));
+      area.style.gridTemplateColumns = `${newLeft}px 6px 1fr`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!dragging) { return; }
+      dragging = false;
+      rhV.classList.remove('dragging');
+    });
+  }
+
+  /* Horizontal divider — resizes top/bottom rows */
+  const rhH = document.getElementById('rh-h');
+  if (rhH && area) {
+    let dragging = false;
+    let startY   = 0;
+    let startTop = 0;
+
+    rhH.addEventListener('mousedown', e => {
+      dragging = true;
+      startY   = e.clientY;
+      startTop = rhH.getBoundingClientRect().top - area.getBoundingClientRect().top - 8;
+      rhH.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) { return; }
+      const available = area.offsetHeight - 16 - 6;
+      const newTop    = Math.max(60, Math.min(available - 60, startTop + (e.clientY - startY)));
+      area.style.gridTemplateRows = `${newTop}px 6px 1fr`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (!dragging) { return; }
+      dragging = false;
+      rhH.classList.remove('dragging');
+    });
+  }
+
+  /* Dock resize grip — drag up to make piano keys taller via CSS variable */
+  const dockGrip = document.getElementById('dock-resize');
+  if (dockGrip) {
+    let dragging = false;
+    let startY   = 0;
+    let startWKH = 200;
+
+    const getWKH = () => {
+      const v = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--wkh'));
+      return isNaN(v) ? 200 : v;
+    };
+
+    dockGrip.addEventListener('mousedown', e => {
+      dragging  = true;
+      startY    = e.clientY;
+      startWKH  = getWKH();
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (!dragging) { return; }
+      const dy     = startY - e.clientY;
+      const newWKH = Math.max(80, Math.min(340, startWKH + dy));
+      document.documentElement.style.setProperty('--wkh', `${newWKH}px`);
+    });
+
+    document.addEventListener('mouseup', () => { dragging = false; });
+  }
+}
+
+/* ── Accent colour picker ─────────────────────────────────────────────── */
+
+const ACCENT_PALETTES = {
+  gold:    { hex: '#c49a2a', br: '#d4aa3a', r: 196, g: 154, b: 42  },
+  blue:    { hex: '#3b82f6', br: '#60a5fa', r: 59,  g: 130, b: 246 },
+  emerald: { hex: '#10b981', br: '#34d399', r: 16,  g: 185, b: 129 },
+  rose:    { hex: '#f43f5e', br: '#fb7185', r: 244, g: 63,  b: 94  },
+};
+
+function setupAccentPicker() {
+  document.querySelectorAll('.accent-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const key = chip.dataset.accent;
+      const p   = ACCENT_PALETTES[key];
+      if (!p) { return; }
+      const root = document.documentElement;
+      root.style.setProperty('--accent',      p.hex);
+      root.style.setProperty('--accent-br',   p.br);
+      root.style.setProperty('--accent-dim',  `rgba(${p.r},${p.g},${p.b},0.35)`);
+      root.style.setProperty('--accent-glow', `rgba(${p.r},${p.g},${p.b},0.14)`);
+      root.style.setProperty('--accent-tr',   `rgba(${p.r},${p.g},${p.b},0.06)`);
+      state.accentKey = key;
+      document.querySelectorAll('.accent-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+}
+
 /* ── Init ─────────────────────────────────────────────────────────────── */
 
 buildPiano();
@@ -382,4 +620,8 @@ refreshOctaveUI();
 updateViewport();
 setupDropdowns();
 setupKnobs();
+setupPianoDrag('piano-viewport', 'piano');
+setupPianoDrag('piano-viewport-upper', 'piano-upper');
+setupPaneResize();
+setupAccentPicker();
 startVizLoop();

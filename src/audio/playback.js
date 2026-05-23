@@ -1,5 +1,5 @@
 import { getCtx, getPlaybackGain, noteFreq } from './context.js';
-import { getZone, getWave, getNoiseBuffer } from './piano-model.js';
+import { getZone, getWave, getNoiseBuffer, resolveEnvelope } from './piano-model.js';
 import { parseNoteName } from '../parsers/kps.js';
 import { state } from '../state.js';
 import { OCT_MIN, OCT_MAX } from '../constants.js';
@@ -8,34 +8,37 @@ import { OCT_MIN, OCT_MAX } from '../constants.js';
 let playbackItems = [];
 
 /**
- * Schedule a single note into the AudioContext timeline.
+ * Schedule a single note, fully respecting the current preset, envelope
+ * multipliers, detune scale, and waveform — the same parameters that apply
+ * to keyboard-triggered notes.
  *
- * Connects to playbackGain rather than masterGain, keeping playback audio
- * isolated from the sustain system. This prevents decaySound() from calling
- * cancelScheduledValues() on gain nodes that the playback engine has already
- * pre-programmed, which was the source of the sustain-during-playback glitch.
- *
- * @param {number} ni         - Note index 0–11
- * @param {number} oct        - Octave number
- * @param {number} audioStart - AudioContext timestamp for note-on (seconds)
- * @param {number} audioDur   - Note duration in seconds
+ * Connects to playbackGain (not masterGain) so the sustain system cannot
+ * accidentally cancel pre-scheduled gain automation.
  */
 export function scheduleNote(ni, oct, audioStart, audioDur) {
-  const ctx      = getCtx();
-  const bus      = getPlaybackGain();
-  const freq     = noteFreq(ni, oct);
-  const zone     = getZone(freq);
-  const wave     = getWave(zone, ctx);
-  const perG     = 1 / zone.strings;
-  const peakVol  = state.volume * 0.88;
+  const ctx     = getCtx();
+  const bus     = getPlaybackGain();
+  const freq    = noteFreq(ni, oct);
+  const zone    = getZone(freq);
+  const wave    = getWave(zone, ctx);
+  const perG    = 1 / zone.strings;
+  const peakVol = state.volume * 0.88;
+
+  const { attack, decayTC, susLevel, release, hammerGainMult } = resolveEnvelope(zone);
+
   const relStart = audioStart + audioDur;
-  const item     = { oscs: [], gainNode: null, timers: [] };
+
+  // Approximate gain at note-off after the natural decay phase
+  const gainAtRelease = peakVol * (susLevel + (1 - susLevel) * Math.exp(-audioDur / decayTC));
+
+  const item = { oscs: [], gainNode: null, timers: [] };
 
   const gn = ctx.createGain();
   gn.gain.setValueAtTime(0, audioStart);
-  gn.gain.linearRampToValueAtTime(peakVol, audioStart + zone.attack);
-  gn.gain.setValueAtTime(peakVol, relStart);
-  gn.gain.linearRampToValueAtTime(0, relStart + zone.release * 0.55);
+  gn.gain.linearRampToValueAtTime(peakVol, audioStart + attack);
+  gn.gain.setTargetAtTime(peakVol * susLevel, audioStart + attack, decayTC);
+  gn.gain.setValueAtTime(gainAtRelease, relStart);
+  gn.gain.linearRampToValueAtTime(0, relStart + release);
   gn.connect(bus);
   item.gainNode = gn;
 
@@ -45,38 +48,40 @@ export function scheduleNote(ni, oct, audioStart, audioDur) {
     const o = ctx.createOscillator();
     o.setPeriodicWave(wave);
     o.frequency.value = freq;
-    o.detune.value = d;
+    o.detune.value = d * state.detuneScale;
     o.connect(og);
     og.connect(gn);
     o.start(audioStart);
-    o.stop(relStart + zone.release + 0.1);
+    o.stop(relStart + release + 0.15);
     item.oscs.push(o);
   });
 
-  const nb = getNoiseBuffer(ctx);
-  const ns = ctx.createBufferSource();
-  ns.buffer = nb;
-  const nf = ctx.createBiquadFilter();
-  nf.type = 'bandpass';
-  nf.frequency.value = zone.hammerFreq;
-  nf.Q.value = 0.9;
-  const ng = ctx.createGain();
-  ng.gain.setValueAtTime(0, audioStart - 0.001);
-  ng.gain.linearRampToValueAtTime(peakVol * zone.hammerGain, audioStart + 0.006);
-  ng.gain.linearRampToValueAtTime(0, audioStart + 0.044);
-  ns.connect(nf);
-  nf.connect(ng);
-  ng.connect(bus);
-  const safeStart = Math.max(ctx.currentTime + 0.001, audioStart);
-  ns.start(safeStart);
-  ns.stop(safeStart + 0.06);
-  item.oscs.push(ns);
+  if (hammerGainMult > 0) {
+    const nb = getNoiseBuffer(ctx);
+    const ns = ctx.createBufferSource();
+    ns.buffer = nb;
+    const nf = ctx.createBiquadFilter();
+    nf.type = 'bandpass';
+    nf.frequency.value = zone.hammerFreq;
+    nf.Q.value = 0.9;
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(0, audioStart - 0.001);
+    ng.gain.linearRampToValueAtTime(peakVol * zone.hammerGain * hammerGainMult, audioStart + 0.006);
+    ng.gain.linearRampToValueAtTime(0, audioStart + 0.044);
+    ns.connect(nf);
+    nf.connect(ng);
+    ng.connect(bus);
+    const safeStart = Math.max(ctx.currentTime + 0.001, audioStart);
+    ns.start(safeStart);
+    ns.stop(safeStart + 0.06);
+    item.oscs.push(ns);
+  }
 
-  // Visual key highlight via setTimeout (ms offset from now)
+  // Visual key highlight
   const now = ctx.currentTime;
   const sel = `.key[data-oct="${oct}"][data-ni="${ni}"]`;
   item.timers.push(setTimeout(() => {
-    if (!state.isPlaying) {return;}
+    if (!state.isPlaying) { return; }
     document.querySelectorAll(sel).forEach(k => k.classList.add('active'));
   }, Math.max(0, (audioStart - now) * 1000)));
   item.timers.push(setTimeout(() => {
@@ -88,14 +93,13 @@ export function scheduleNote(ni, oct, audioStart, audioDur) {
 
 /**
  * Schedule all notes in a score for playback and update transport UI.
- * @param {{ tempo: number, notes: Array<{note: string, time: number, duration: number}> }} score
  */
 export function schedulePlayback(score) {
   stopPlayback();
-  if (!score?.notes?.length) {return;}
+  if (!score?.notes?.length) { return; }
 
   const ctx = getCtx();
-  const spb = 60 / score.tempo;   // seconds per beat
+  const spb = 60 / score.tempo;
   const t0  = ctx.currentTime + 0.25;
 
   state.isPlaying = true;
@@ -104,12 +108,12 @@ export function schedulePlayback(score) {
 
   score.notes.forEach(n => {
     const info = parseNoteName(n.note);
-    if (!info || info.oct < OCT_MIN || info.oct > OCT_MAX) {return;}
+    if (!info || info.oct < OCT_MIN || info.oct > OCT_MAX) { return; }
     scheduleNote(info.ni, info.oct, t0 + n.time * spb, n.duration * spb);
   });
 
-  const last     = score.notes[score.notes.length - 1];
-  const totalMs  = (last.time + last.duration) * spb * 1000 + 800;
+  const last    = score.notes[score.notes.length - 1];
+  const totalMs = (last.time + last.duration) * spb * 1000 + 800;
   const endTimer = setTimeout(stopPlayback, totalMs);
   playbackItems.push({ oscs: [], gainNode: null, timers: [endTimer] });
 }
@@ -134,6 +138,6 @@ export function stopPlayback() {
   document.querySelectorAll('.key.active').forEach(k => k.classList.remove('active'));
   const btnPlay = document.getElementById('btn-play');
   const btnStop = document.getElementById('btn-stop');
-  if (btnPlay) {btnPlay.disabled = (state.currentScore === null);}
-  if (btnStop) {btnStop.disabled = true;}
+  if (btnPlay) { btnPlay.disabled = (state.currentScore === null); }
+  if (btnStop) { btnStop.disabled = true; }
 }

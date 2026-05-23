@@ -47,3 +47,52 @@ export const CODE_MAP = {
   KeyO: { ni: 1,  octOff: 1, label: 'O' },
   KeyL: { ni: 2,  octOff: 1, label: 'L' },
 };
+
+/**
+ * Bottom and top row key codes in piano order.
+ * Used in strict-rows mode to compute the white/black key mapping.
+ */
+export const BOTTOM_ROW_CODES = ['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL'];
+export const TOP_ROW_CODES    = ['KeyW','KeyE','KeyT','KeyY','KeyU','KeyO'];
+
+/**
+ * Maximum valid whiteKeyStart index so the 9-key bottom row stays in range.
+ * Piano has 7 octaves × 7 white keys = 49 white keys (indices 0–48).
+ */
+export const MAX_WK_START = 40; // 49 - 9
+
+/**
+ * Convert a global white-key index (0 = C1) to {ni, oct}.
+ * @param {number} wkIdx
+ * @returns {{ ni: number, oct: number }}
+ */
+export function whiteKeyAt(wkIdx) {
+  return {
+    ni:  WHITE_NOTE_INDICES[wkIdx % 7],
+    oct: Math.floor(wkIdx / 7) + OCT_MIN,
+  };
+}
+
+/**
+ * Given a whiteKeyStart index, return the 6 black keys for the top row.
+ * Gaps (E–F, B–C) where no black key exists are returned as null.
+ *
+ * @param {number} wkStart
+ * @returns {Array<{ni:number, oct:number}|null>}  length always 6
+ */
+export function getStrictTopRow(wkStart) {
+  const result = [];
+  for (let i = 0; i < 8 && result.length < 6; i++) {
+    const wk1 = whiteKeyAt(wkStart + i);
+    const wk2 = whiteKeyAt(wkStart + i + 1);
+    // Semitone gap between consecutive white keys: 2 = black key exists, 1 = no black
+    const gap = wk2.ni > wk1.ni
+      ? wk2.ni - wk1.ni
+      : (12 - wk1.ni) + wk2.ni; // crossing octave boundary (B→C)
+    if (gap === 2) {
+      result.push({ ni: wk1.ni + 1, oct: wk1.oct });
+    }
+  }
+  while (result.length < 6) { result.push(null); }
+  return result;
+}

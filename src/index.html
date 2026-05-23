@@ -11,237 +11,217 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:            #09090b;
-      --surface-1:     #111116;
-      --surface-2:     #18181f;
-      --surface-3:     #1e1e26;
-      --surface-4:     #0e0e12;
-      --border:        #2c2c3a;
-      --border-sub:    #1e1e28;
+      --bg:          #09090b;
+      --s1:          #111116;
+      --s2:          #18181f;
+      --s3:          #1e1e26;
+      --s4:          #0e0e12;
+      --border:      #2c2c3a;
+      --bsub:        #1e1e28;
 
-      --gold:          #c49a2a;
-      --gold-bright:   #d4aa3a;
-      --gold-dim:      rgba(196,154,42,0.35);
-      --gold-glow:     rgba(196,154,42,0.14);
-      --gold-trace:    rgba(196,154,42,0.06);
+      /* Accent — overridden by JS for theme switching */
+      --accent:      #c49a2a;
+      --accent-br:   #d4aa3a;
+      --accent-dim:  rgba(196,154,42,0.35);
+      --accent-glow: rgba(196,154,42,0.14);
+      --accent-tr:   rgba(196,154,42,0.06);
 
-      --red:           #e05555;
-      --red-dim:       rgba(224,85,85,0.3);
-      --red-trace:     rgba(224,85,85,0.06);
+      --red:         #e05555;
+      --red-dim:     rgba(224,85,85,0.3);
+      --red-tr:      rgba(224,85,85,0.06);
 
-      --text-1:        #f0ece4;
-      --text-2:        #7a766e;
-      --text-3:        #3e3c38;
+      --t1:  #f0ece4;
+      --t2:  #7a766e;
+      --t3:  #3e3c38;
 
-      --ivory:         #f5f0e8;
-      --ivory-mid:     #e8e2d4;
-      --ivory-dim:     #d5cfc0;
+      --wkh:       200px;
 
-      --font-display:  'Cormorant Garamond', Georgia, serif;
-      --font-ui:       'Montserrat', system-ui, sans-serif;
+      --ivory:     #f5f0e8;
+      --ivory-mid: #e8e2d4;
+      --ivory-dim: #d5cfc0;
 
-      --r-sm:  4px;
-      --r-md:  8px;
-      --r-pill:999px;
+      --fd: 'Cormorant Garamond', Georgia, serif;
+      --fu: 'Montserrat', system-ui, sans-serif;
 
-      --ease:  cubic-bezier(0.4,0,0.2,1);
-      --tf:    120ms;
-      --tm:    200ms;
+      --ease: cubic-bezier(0.4,0,0.2,1);
+      --tf:   120ms;
+      --tm:   200ms;
     }
 
     body {
-      background: var(--bg);
-      color: var(--text-1);
-      font-family: var(--font-ui);
-      height: 100vh;
-      overflow: hidden;
-      user-select: none;
+      background: var(--bg); color: var(--t1);
+      font-family: var(--fu);
+      height: 100vh; overflow: hidden; user-select: none;
     }
     body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 35%, rgba(196,154,42,0.025) 0%, transparent 70%);
+      content: ''; position: fixed; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 35%, rgba(196,154,42,0.02) 0%, transparent 70%);
       pointer-events: none; z-index: 0;
     }
 
     #app {
       position: relative; z-index: 1;
-      height: 100vh;
-      display: flex; flex-direction: column;
+      height: 100vh; display: flex; flex-direction: column;
     }
 
     /* ── Control panel ─────────────────────────────────────── */
     #control-panel {
       height: 52px; flex-shrink: 0;
-      display: flex; align-items: center; gap: 10px;
-      padding: 0 14px;
-      background: var(--surface-1);
-      border-bottom: 1px solid var(--border-sub);
+      display: flex; align-items: center; gap: 10px; padding: 0 14px;
+      background: var(--s1); border-bottom: 1px solid var(--bsub);
       box-shadow: 0 2px 14px rgba(0,0,0,0.4);
     }
-
-    .cp-logo {
-      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-    }
+    .cp-logo { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .cp-logo h1 {
-      font-family: var(--font-display);
-      font-size: 1.2rem; font-weight: 300;
-      letter-spacing: 0.5em; text-transform: uppercase;
-      color: var(--text-1); text-indent: 0.5em;
+      font-family: var(--fd); font-size: 1.2rem; font-weight: 300;
+      letter-spacing: 0.5em; text-transform: uppercase; color: var(--t1); text-indent: 0.5em;
     }
-    .cp-rule {
-      width: 1px; height: 20px;
-      background: linear-gradient(180deg, transparent, var(--gold), transparent);
-      opacity: 0.45;
-    }
-
+    .cp-rule { width: 1px; height: 20px; background: linear-gradient(180deg, transparent, var(--accent), transparent); opacity: 0.45; }
     .cp-transport { display: flex; align-items: center; gap: 6px; flex: 1; }
     .cp-right     { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
 
     .cp-btn {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: var(--text-2);
-      border-radius: var(--r-sm);
-      cursor: pointer;
-      font-family: var(--font-ui);
-      font-size: 0.56rem; font-weight: 600;
+      background: var(--s2); border: 1px solid var(--border); color: var(--t2);
+      border-radius: 4px; cursor: pointer;
+      font-family: var(--fu); font-size: 0.56rem; font-weight: 600;
       letter-spacing: 0.12em; text-transform: uppercase;
       padding: 0 11px; height: 26px;
       display: flex; align-items: center; gap: 5px;
       transition: color var(--tf) var(--ease), border-color var(--tf) var(--ease), background var(--tf) var(--ease);
       white-space: nowrap;
     }
-    .cp-btn:hover:not(:disabled) { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-trace); }
+    .cp-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-tr); }
     .cp-btn:disabled { opacity: 0.22; cursor: not-allowed; }
-    .cp-btn.rec:hover:not(:disabled) { color: var(--red); border-color: var(--red-dim); background: var(--red-trace); }
+    .cp-btn.rec:hover:not(:disabled) { color: var(--red); border-color: var(--red-dim); background: var(--red-tr); }
 
     .cp-icon {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      color: var(--text-2);
-      border-radius: var(--r-sm);
-      cursor: pointer;
-      width: 26px; height: 26px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      transition: color var(--tf) var(--ease), border-color var(--tf) var(--ease), background var(--tf) var(--ease);
+      background: var(--s2); border: 1px solid var(--border); color: var(--t2);
+      border-radius: 4px; cursor: pointer; width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      transition: color var(--tf), border-color var(--tf), background var(--tf);
     }
-    .cp-icon:hover:not(:disabled) { color: var(--gold-bright); border-color: var(--gold-dim); background: var(--gold-trace); }
+    .cp-icon:hover:not(:disabled) { color: var(--accent-br); border-color: var(--accent-dim); background: var(--accent-tr); }
     .cp-icon:disabled { opacity: 0.22; cursor: not-allowed; }
-    .cp-icon.lit { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-trace); }
+    .cp-icon.lit { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-tr); }
 
     .cp-sep { width: 1px; height: 14px; background: var(--border); flex-shrink: 0; }
-
     #piece-title {
-      font-size: 0.58rem; font-weight: 300;
-      letter-spacing: 0.06em; font-style: italic;
-      color: var(--text-3);
-      max-width: 150px; overflow: hidden;
-      text-overflow: ellipsis; white-space: nowrap;
+      font-size: 0.58rem; font-weight: 300; letter-spacing: 0.06em; font-style: italic;
+      color: var(--t3); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
     /* ── Dropdowns ─────────────────────────────────────────── */
     .dropdown { position: relative; }
     .dd-menu {
-      position: absolute; top: calc(100% + 6px); right: 0;
-      min-width: 188px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-md);
-      padding: 6px;
-      box-shadow: 0 10px 28px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.4);
-      z-index: 300; display: none;
+      position: absolute; top: calc(100% + 6px); right: 0; min-width: 196px;
+      background: var(--s2); border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px; box-shadow: 0 10px 28px rgba(0,0,0,0.65); z-index: 300; display: none;
     }
     .dd-menu.open { display: block; }
-
+    .dd-title { font-size: 0.46rem; font-weight: 600; letter-spacing: 0.2em; color: var(--t3); text-transform: uppercase; padding: 4px 8px 6px; }
     .dd-row {
-      display: flex; align-items: center;
-      justify-content: space-between;
-      padding: 5px 8px; border-radius: var(--r-sm);
-      gap: 8px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 8px; border-radius: 4px; gap: 8px;
     }
-    .dd-row:hover { background: var(--surface-3); }
-    .dd-lbl {
-      font-size: 0.56rem; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--text-3); white-space: nowrap;
+    .dd-row:hover { background: var(--s3); }
+    .dd-lbl { font-size: 0.56rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--t3); white-space: nowrap; }
+    .dd-hr  { height: 1px; background: var(--bsub); margin: 4px 0; }
+
+    input[type="checkbox"] { accent-color: var(--accent); cursor: pointer; }
+
+    /* Accent colour chips */
+    .accent-chips { display: flex; gap: 5px; align-items: center; }
+    .accent-chip {
+      width: 14px; height: 14px; border-radius: 50%; cursor: pointer;
+      border: 2px solid transparent; transition: border-color 0.1s, transform 0.1s;
     }
-    .dd-hr { height: 1px; background: var(--border-sub); margin: 4px 0; }
+    .accent-chip:hover { transform: scale(1.2); }
+    .accent-chip.active { border-color: rgba(255,255,255,0.6); }
 
-    input[type="checkbox"] { accent-color: var(--gold); cursor: pointer; }
-
+    /* BPM */
     .bpm-wrap { display: flex; align-items: center; gap: 5px; }
     .bpm-btn {
-      background: var(--surface-3); border: 1px solid var(--border);
-      color: var(--text-2); width: 18px; height: 18px;
-      border-radius: 3px; cursor: pointer;
-      font-size: 0.8rem;
+      background: var(--s3); border: 1px solid var(--border); color: var(--t2);
+      width: 18px; height: 18px; border-radius: 3px; cursor: pointer; font-size: 0.8rem;
       display: flex; align-items: center; justify-content: center;
       transition: color var(--tf), border-color var(--tf);
     }
-    .bpm-btn:hover { color: var(--gold); border-color: var(--gold-dim); }
-    #bpm-value {
-      font-size: 0.7rem; font-weight: 600;
-      color: var(--gold); min-width: 26px; text-align: center;
-      font-variant-numeric: tabular-nums;
-    }
+    .bpm-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
+    #bpm-value { font-size: 0.7rem; font-weight: 600; color: var(--accent); min-width: 26px; text-align: center; font-variant-numeric: tabular-nums; }
+
     select {
-      background: var(--surface-3); border: 1px solid var(--border);
-      color: var(--text-1); border-radius: 3px;
-      padding: 2px 5px;
-      font-family: var(--font-ui); font-size: 0.6rem; cursor: pointer;
+      background: var(--s3); border: 1px solid var(--border); color: var(--t1);
+      border-radius: 3px; padding: 2px 5px; font-family: var(--fu); font-size: 0.6rem; cursor: pointer;
     }
 
     /* Toggle */
     .tog-wrap { display: flex; align-items: center; gap: 7px; cursor: pointer; }
     .tog {
       position: relative; width: 30px; height: 15px;
-      background: var(--surface-3);
-      border: 1px solid var(--border); border-radius: var(--r-pill);
+      background: var(--s3); border: 1px solid var(--border); border-radius: 999px;
       transition: background var(--tf), border-color var(--tf);
     }
-    .tog.on { background: var(--gold-glow); border-color: var(--gold-dim); }
+    .tog.on { background: var(--accent-glow); border-color: var(--accent-dim); }
     .tog::after {
-      content: '';
-      position: absolute;
-      width: 11px; height: 11px;
-      background: var(--text-2); border-radius: 50%;
-      top: 1px; left: 1px;
+      content: ''; position: absolute; width: 11px; height: 11px;
+      background: var(--t2); border-radius: 50%; top: 1px; left: 1px;
       transition: transform var(--tf), background var(--tf);
     }
-    .tog.on::after { transform: translateX(15px); background: var(--gold); }
+    .tog.on::after { transform: translateX(15px); background: var(--accent); }
 
     /* ── Studio area ────────────────────────────────────────── */
+    #studio-wrap {
+      flex: 1; min-height: 0; position: relative; overflow: hidden;
+    }
+
     #studio-area {
-      flex: 1; min-height: 0;
+      width: 100%; height: 100%;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr;
-      gap: 8px; padding: 8px;
-      overflow: hidden;
+      grid-template-columns: 1fr 6px 1fr;
+      grid-template-rows:    1fr 6px 1fr;
+      gap: 0; padding: 8px;
     }
 
     .quad {
-      background: var(--surface-1);
-      border: 1px solid var(--border-sub);
-      border-radius: var(--r-md);
-      display: flex; flex-direction: column;
-      overflow: hidden; min-height: 0;
+      background: var(--s1); border: 1px solid var(--bsub); border-radius: 8px;
+      display: flex; flex-direction: column; overflow: hidden; min-height: 0;
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.015), 0 2px 8px rgba(0,0,0,0.3);
     }
 
+    /* Grid placement */
+    #quad-waveform { grid-column: 1; grid-row: 1; }
+    #quad-osc      { grid-column: 3; grid-row: 1; }
+    #quad-env      { grid-column: 1; grid-row: 3; }
+    #quad-fx       { grid-column: 3; grid-row: 3; }
+
+    /* ── Resize handles ─────────────────────────────────────── */
+    .rh-v {
+      grid-column: 2; grid-row: 1 / 4;
+      cursor: col-resize; position: relative;
+      display: flex; align-items: stretch; justify-content: center;
+    }
+    .rh-h {
+      grid-column: 1 / 4; grid-row: 2;
+      cursor: row-resize; position: relative;
+      display: flex; align-items: center; justify-content: stretch;
+    }
+    .rh-v::after, .rh-h::after {
+      content: ''; display: block;
+      border-radius: 3px;
+      background: transparent;
+      transition: background 0.15s;
+    }
+    .rh-v::after { width: 2px; height: 100%; margin: 8px 0; }
+    .rh-h::after { height: 2px; width: 100%; margin: 0 8px; }
+    .rh-v:hover::after, .rh-v.dragging::after { background: var(--accent-dim); }
+    .rh-h:hover::after, .rh-h.dragging::after { background: var(--accent-dim); }
+
     .q-hdr {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 7px 11px; flex-shrink: 0;
-      border-bottom: 1px solid var(--border-sub);
+      padding: 7px 11px; flex-shrink: 0; border-bottom: 1px solid var(--bsub);
     }
-    .q-title {
-      font-size: 0.46rem; font-weight: 600;
-      letter-spacing: 0.22em; text-transform: uppercase;
-      color: var(--text-3);
-    }
-    .q-body {
+    .q-title { font-size: 0.46rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--t3); }
+    .q-body  {
       flex: 1; display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       padding: 10px 12px; gap: 10px; min-height: 0;
@@ -251,237 +231,164 @@
     #quad-waveform .q-body { padding: 7px; gap: 5px; }
     #waveform-canvas {
       width: 100%; flex: 1; min-height: 0;
-      border-radius: var(--r-sm);
-      background: var(--bg); display: block;
+      border-radius: 4px; background: var(--bg); display: block;
     }
     .viz-toggle { display: flex; gap: 3px; }
     .viz-btn {
-      background: transparent; border: 1px solid var(--border);
-      color: var(--text-3); border-radius: 3px;
-      padding: 2px 7px;
-      font-family: var(--font-ui); font-size: 0.44rem;
-      font-weight: 600; letter-spacing: 0.12em;
-      cursor: pointer;
+      background: transparent; border: 1px solid var(--border); color: var(--t3);
+      border-radius: 3px; padding: 2px 7px; font-family: var(--fu);
+      font-size: 0.44rem; font-weight: 600; letter-spacing: 0.12em; cursor: pointer;
       transition: color var(--tf), border-color var(--tf), background var(--tf);
     }
-    .viz-btn.active { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-trace); }
+    .viz-btn.active { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-tr); }
 
     /* Knobs */
-    .knob-row {
-      display: flex; align-items: flex-end;
-      justify-content: center; gap: 14px; flex-wrap: wrap;
-    }
-    .knob-wrap {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 4px;
-    }
-    .knob-ring {
-      position: relative; width: 50px; height: 50px;
-    }
+    .knob-row { display: flex; align-items: flex-end; justify-content: center; gap: 14px; flex-wrap: wrap; }
+    .knob-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .knob-ring { position: relative; width: 50px; height: 50px; }
     .knob-ring svg { display: block; }
     .knob-cap {
-      position: absolute;
-      width: 32px; height: 32px;
+      position: absolute; width: 32px; height: 32px;
       background: radial-gradient(circle at 40% 32%, #2e2e3e, #18181f);
-      border-radius: 50%;
-      top: 9px; left: 9px;
-      cursor: grab;
-      box-shadow:
-        0 3px 10px rgba(0,0,0,0.85),
-        inset 0 1px 3px rgba(255,255,255,0.08),
-        inset 0 -1px 2px rgba(0,0,0,0.5);
+      border-radius: 50%; top: 9px; left: 9px; cursor: grab;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.85), inset 0 1px 3px rgba(255,255,255,0.08), inset 0 -1px 2px rgba(0,0,0,0.5);
     }
     .knob-cap:active { cursor: grabbing; }
     .knob-cap::before {
-      content: '';
-      position: absolute;
-      width: 3px; height: 9px;
-      background: var(--gold);
-      border-radius: 2px;
-      top: 4px; left: 50%;
-      transform: translateX(-50%);
-      box-shadow: 0 0 4px rgba(196,154,42,0.6);
+      content: ''; position: absolute; width: 3px; height: 9px;
+      background: var(--accent); border-radius: 2px; top: 4px; left: 50%;
+      transform: translateX(-50%); box-shadow: 0 0 4px rgba(196,154,42,0.6);
     }
-    .knob-lbl {
-      font-size: 0.42rem; font-weight: 600;
-      letter-spacing: 0.16em; color: var(--text-3);
-      text-transform: uppercase; text-align: center;
-    }
-    .knob-val {
-      font-size: 0.5rem; font-weight: 500;
-      color: var(--gold); font-variant-numeric: tabular-nums;
-      text-align: center; min-height: 0.6rem;
-    }
+    .knob-lbl { font-size: 0.42rem; font-weight: 600; letter-spacing: 0.16em; color: var(--t3); text-transform: uppercase; text-align: center; }
+    .knob-val { font-size: 0.5rem; font-weight: 500; color: var(--accent); font-variant-numeric: tabular-nums; text-align: center; min-height: 0.6rem; }
 
-    /* Presets */
     .preset-row { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
     .preset-btn {
-      background: var(--surface-2); border: 1px solid var(--border);
-      color: var(--text-3); border-radius: 3px;
-      padding: 3px 8px;
-      font-family: var(--font-ui); font-size: 0.44rem;
-      font-weight: 600; letter-spacing: 0.1em;
-      cursor: pointer;
+      background: var(--s2); border: 1px solid var(--border); color: var(--t3);
+      border-radius: 3px; padding: 3px 8px; font-family: var(--fu);
+      font-size: 0.44rem; font-weight: 600; letter-spacing: 0.1em; cursor: pointer;
       transition: color var(--tf), border-color var(--tf), background var(--tf);
     }
-    .preset-btn:hover { color: var(--text-2); }
-    .preset-btn.active { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-trace); }
+    .preset-btn:hover { color: var(--t2); }
+    .preset-btn.active { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-tr); }
+
+    /* ── Dock resize handle ─────────────────────────────────── */
+    #dock-resize {
+      height: 6px; flex-shrink: 0; cursor: ns-resize;
+      background: transparent; position: relative;
+      transition: background 0.15s;
+    }
+    #dock-resize::after {
+      content: ''; position: absolute;
+      left: 50%; transform: translateX(-50%);
+      top: 2px; width: 40px; height: 2px;
+      border-radius: 2px; background: transparent;
+      transition: background 0.15s;
+    }
+    #dock-resize:hover::after, #dock-resize.dragging::after { background: var(--accent-dim); }
 
     /* ── Piano dock ─────────────────────────────────────────── */
-    #piano-dock { flex-shrink: 0; background: var(--surface-4); border-top: 1px solid var(--border-sub); }
+    #piano-dock { flex-shrink: 0; background: var(--s4); border-top: 1px solid var(--bsub); }
 
     #dock-toolbar {
-      height: 38px;
-      display: flex; align-items: center;
-      padding: 0 12px; gap: 12px;
-      border-bottom: 1px solid var(--border-sub);
+      height: 38px; display: flex; align-items: center; padding: 0 12px; gap: 12px;
+      border-bottom: 1px solid var(--bsub);
     }
-    .dock-left  { display: flex; align-items: center; gap: 6px; }
+    .dock-left   { display: flex; align-items: center; gap: 6px; }
     .dock-center { flex: 1; display: flex; justify-content: center; }
     .dock-right  { display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
 
     .hint-badge {
-      font-size: 0.48rem; font-weight: 600; letter-spacing: 0.08em;
-      color: var(--text-3);
-      background: var(--surface-2); border: 1px solid var(--border-sub);
-      border-radius: 3px; padding: 2px 5px;
+      font-size: 0.48rem; font-weight: 600; letter-spacing: 0.08em; color: var(--t3);
+      background: var(--s2); border: 1px solid var(--bsub); border-radius: 3px; padding: 2px 5px;
     }
     .octave-display { display: flex; flex-direction: column; align-items: center; line-height: 1; }
-    .oct-lbl {
-      font-size: 0.42rem; font-weight: 600;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--text-3); margin-bottom: 1px;
-    }
-    #octave-value {
-      font-family: var(--font-display);
-      font-size: 1.3rem; font-weight: 400;
-      color: var(--gold); min-width: 1.3rem; text-align: center; line-height: 1;
+    .oct-lbl { font-size: 0.42rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--t3); margin-bottom: 1px; }
+    .oct-val {
+      font-family: var(--fd); font-size: 1.3rem; font-weight: 400;
+      color: var(--accent); min-width: 1.3rem; text-align: center; line-height: 1;
     }
     .oct-btn {
-      background: var(--surface-2); border: 1px solid var(--border);
-      color: var(--text-2); width: 20px; height: 20px;
-      border-radius: var(--r-sm); cursor: pointer;
+      background: var(--s2); border: 1px solid var(--border); color: var(--t2);
+      width: 20px; height: 20px; border-radius: 4px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: color var(--tf), border-color var(--tf), background var(--tf);
     }
-    .oct-btn:hover:not(:disabled) { color: var(--gold); border-color: var(--gold-dim); background: var(--gold-trace); }
+    .oct-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-tr); }
     .oct-btn:disabled { opacity: 0.18; cursor: not-allowed; }
 
     .layout-tog {
       display: flex; overflow: hidden;
-      background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm);
+      background: var(--s2); border: 1px solid var(--border); border-radius: 4px;
     }
     .layout-btn {
-      background: transparent; border: none;
-      color: var(--text-3); padding: 3px 10px;
-      font-family: var(--font-ui); font-size: 0.48rem;
-      font-weight: 600; letter-spacing: 0.12em;
-      cursor: pointer;
-      transition: color var(--tf), background var(--tf);
+      background: transparent; border: none; color: var(--t3);
+      padding: 3px 10px; font-family: var(--fu); font-size: 0.48rem; font-weight: 600;
+      letter-spacing: 0.12em; cursor: pointer; transition: color var(--tf), background var(--tf);
     }
-    .layout-btn.active { color: var(--gold); background: var(--gold-trace); }
+    .layout-btn.active { color: var(--accent); background: var(--accent-tr); }
     .layout-btn + .layout-btn { border-left: 1px solid var(--border); }
 
-    .vol-lbl { font-size: 0.44rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-3); }
+    .vol-lbl { font-size: 0.44rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--t3); }
     input[type="range"] {
-      -webkit-appearance: none;
-      width: 76px; height: 2px;
-      background: var(--surface-3); border-radius: 2px; outline: none; cursor: pointer;
+      -webkit-appearance: none; width: 76px; height: 2px;
+      background: var(--s3); border-radius: 2px; outline: none; cursor: pointer;
     }
     input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 11px; height: 11px;
-      background: radial-gradient(circle at 35% 35%, var(--gold-bright), var(--gold));
+      -webkit-appearance: none; width: 11px; height: 11px;
+      background: radial-gradient(circle at 35% 35%, var(--accent-br), var(--accent));
       border-radius: 50%; cursor: pointer;
-      box-shadow: 0 0 6px rgba(196,154,42,0.55);
-      transition: transform var(--tf);
+      box-shadow: 0 0 6px var(--accent-dim); transition: transform var(--tf);
     }
     input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.25); }
-    #volume-value {
-      font-size: 0.56rem; font-weight: 500; color: var(--gold);
-      min-width: 30px; font-variant-numeric: tabular-nums;
-    }
+    #volume-value { font-size: 0.56rem; font-weight: 500; color: var(--accent); min-width: 30px; font-variant-numeric: tabular-nums; }
 
-    /* ── Piano layers ─────────────────────────────────────── */
-    #piano-layers { display: flex; flex-direction: column; }
+    /* ── Piano layers ────────────────────────────────────────── */
+    #piano-layers { display: flex; flex-direction: column; width: 100%; }
 
-    .piano-row { display: flex; align-items: flex-end; }
+    .piano-row { display: flex; align-items: flex-end; width: 100%; }
     .piano-row.hidden { display: none; }
 
-    .row-lbl {
-      width: 24px; flex-shrink: 0;
-      font-size: 0.42rem; font-weight: 600;
-      letter-spacing: 0.1em; color: var(--text-3);
-      text-transform: uppercase;
-      writing-mode: vertical-rl; text-orientation: mixed;
-      transform: rotate(180deg);
-      text-align: center; padding: 4px 0;
+    /* Per-row octave mini-toolbar for upper piano */
+    .row-oct {
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+      gap: 3px; width: 30px; flex-shrink: 0; padding-bottom: 4px;
     }
+    .row-oct .oct-val { font-size: 1.05rem; }
 
-    /* ── Sustain strip ─────────────────────────────────────── */
-    #sustain-strip {
-      display: flex; flex-direction: column;
-      align-items: center; gap: 4px;
-      width: 30px; padding: 4px 0;
-    }
-    .s-lbl { font-size: 0.38rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); }
-    #strip-track {
-      position: relative; width: 26px; height: 160px;
-      background: var(--surface-2); border: 1px solid var(--border-sub);
-      border-radius: var(--r-pill); cursor: pointer;
-      touch-action: none; overflow: hidden;
-      box-shadow: inset 0 2px 8px rgba(0,0,0,0.5);
-    }
-    #strip-fill {
-      position: absolute; bottom: 0; left: 0; width: 100%;
-      background: linear-gradient(0deg, rgba(196,154,42,0.55) 0%, rgba(196,154,42,0.18) 70%, transparent 100%);
-      pointer-events: none; transition: height 0.05s;
-    }
-    #strip-thumb {
-      position: absolute; left: 50%; transform: translateX(-50%);
-      width: 22px; height: 22px;
-      background: radial-gradient(circle at 38% 32%, var(--ivory), var(--ivory-mid));
-      border-radius: 50%; cursor: grab;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.75), inset 0 1px 2px rgba(255,255,255,0.3);
-      transition: box-shadow var(--tf);
-    }
-    #strip-thumb:active { cursor: grabbing; }
+    /* ── Sustain strip (hidden — kept in DOM for JS) ─────────── */
+    #sustain-strip { display: none; }
 
-    /* ── Piano viewport ────────────────────────────────────── */
-    #piano-layers  { width: 100%; }
-    .piano-row     { width: 100%; }
-
+    /* ── Piano viewport ──────────────────────────────────────── */
     #piano-viewport, #piano-viewport-upper {
-      overflow: hidden; height: 200px; position: relative;
+      overflow: hidden; height: var(--wkh); position: relative; flex: 1;
       border-radius: 0 0 6px 6px;
       border: 1px solid #2a2520; border-top: 8px solid #1a1612;
       box-shadow: 0 0 0 1px #0a0a0c, 0 24px 60px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.55);
+      cursor: grab;
     }
+    #piano-viewport:active, #piano-viewport-upper:active { cursor: grabbing; }
     #piano-viewport-upper {
       border-radius: 6px 6px 0 0;
       border-top: 1px solid #2a2520; border-bottom: 8px solid #1a1612;
     }
 
     #piano, #piano-upper {
-      position: relative; height: 200px; width: 2900px;
+      position: relative; height: var(--wkh); width: 2900px;
       background: #0c0c10;
       transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
     }
-
-    .white-keys {
-      display: flex; height: 200px; width: 2900px;
-      position: relative; z-index: 1;
-    }
+    .white-keys { display: flex; height: var(--wkh); width: 2900px; position: relative; z-index: 1; }
 
     /* ── Keys ── */
     .key { cursor: pointer; }
     .white-key {
-      flex-shrink: 0; width: 58px; height: 200px;
+      flex-shrink: 0; width: 58px; height: var(--wkh);
       background: linear-gradient(180deg, var(--ivory) 0%, var(--ivory-mid) 55%, var(--ivory-dim) 100%);
       border-left: 1px solid #b8b0a0; border-bottom: 2px solid #9a9080;
       border-radius: 0 0 5px 5px;
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: flex-end; padding-bottom: 11px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+      padding-bottom: 11px;
       transition: background var(--tf) var(--ease), box-shadow var(--tf) var(--ease), transform var(--tf) var(--ease);
       box-shadow: inset -1px 0 0 rgba(255,255,255,0.55), inset 0 1px 0 rgba(255,255,255,0.85), 2px 6px 14px rgba(0,0,0,0.5);
     }
@@ -493,20 +400,17 @@
     }
 
     .black-key {
-      position: absolute; top: 0;
-      width: 36px; height: 122px;
+      position: absolute; top: 0; width: 36px; height: calc(var(--wkh) * 0.61);
       background: linear-gradient(180deg, #202026 0%, #161618 30%, #0e0e12 70%, #0a0a0e 100%);
       border-left: 1px solid #303038; border-right: 1px solid #282830;
       border-bottom: 2px solid #1a1a20; border-radius: 0 0 4px 4px;
-      display: flex; align-items: flex-end; justify-content: center;
-      padding-bottom: 8px; z-index: 2;
+      display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; z-index: 2;
       transition: background var(--tf) var(--ease), box-shadow var(--tf) var(--ease), transform var(--tf) var(--ease);
       box-shadow: 3px 10px 20px rgba(0,0,0,0.9), inset 0 2px 0 rgba(255,255,255,0.07), inset -1px 0 0 rgba(255,255,255,0.03);
     }
     .black-key::before {
       content: ''; position: absolute; top: 0; left: 2px; right: 2px; height: 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
-      pointer-events: none;
+      background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%); pointer-events: none;
     }
     .black-key:active, .black-key.active {
       background: linear-gradient(180deg, #1e1804 0%, #150f02 30%, #0d0a02 70%, #080700 100%);
@@ -515,35 +419,32 @@
     }
 
     .key-label {
-      font-family: var(--font-ui); font-size: 0.5rem; font-weight: 700;
+      font-family: var(--fu); font-size: 0.5rem; font-weight: 700;
       letter-spacing: 0.02em; opacity: 0; transition: opacity 0.12s;
     }
     .octave-active.white-key .key-label { opacity: 0.45; color: #7a6a50; }
     .octave-active.black-key .key-label { opacity: 0.55; color: #a08858; }
     .white-key.active .key-label { opacity: 1 !important; color: #6a4c10; }
-    .black-key.active .key-label  { opacity: 1 !important; color: var(--gold); }
+    .black-key.active  .key-label { opacity: 1 !important; color: var(--accent); }
 
-    .note-name {
-      font-size: 0.46rem; font-weight: 500; color: #9c9488;
-      margin-bottom: 4px; letter-spacing: 0.04em; transition: color 0.05s;
-    }
+    .note-name { font-size: 0.46rem; font-weight: 500; color: #9c9488; margin-bottom: 4px; letter-spacing: 0.04em; transition: color 0.05s; }
     .white-key.active .note-name { color: #6a4c10; }
 
     .octave-active.white-key { background: linear-gradient(180deg, #f7f2ea 0%, #ebe4d6 55%, #ddd5c4 100%); }
     .octave-active.black-key { background: linear-gradient(180deg, #211f27 0%, #181620 30%, #100e16 70%, #0c0a12 100%); }
 
-    /* ── Fullscreen ─────────────────────────────────────────── */
+    /* ── Fullscreen ──────────────────────────────────────────── */
     #btn-fullscreen {
-      background: var(--surface-2); border: 1px solid var(--border);
-      border-radius: var(--r-sm); color: var(--text-3);
-      width: 26px; height: 26px; cursor: pointer;
+      background: var(--s2); border: 1px solid var(--border); border-radius: 4px;
+      color: var(--t3); width: 26px; height: 26px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: color var(--tm), border-color var(--tm); flex-shrink: 0;
     }
-    #btn-fullscreen:hover { color: var(--gold); border-color: var(--gold-dim); }
+    #btn-fullscreen:hover { color: var(--accent); border-color: var(--accent-dim); }
 
+    /* ── Hint / name suppression ─────────────────────────────── */
     body.hide-hints .octave-active .key-label { opacity: 0 !important; }
-    body.hide-names .note-name { visibility: hidden !important; }
+    body.hide-names .note-name                { visibility: hidden !important; }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
@@ -587,35 +488,16 @@
     </div>
 
     <div class="cp-right">
-      <!-- Settings -->
-      <div class="dropdown" id="dd-settings">
-        <button class="cp-icon" id="btn-settings" aria-label="Settings">
-          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-            <circle cx="7" cy="7" r="2.2"/>
-            <path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13M2.9 2.9l1.06 1.06M10.04 10.04l1.06 1.06M11.1 2.9 10.04 3.96M3.96 10.04 2.9 11.1"/>
-          </svg>
-        </button>
-        <div class="dd-menu" id="settings-menu">
-          <div class="dd-row">
-            <span class="dd-lbl">Note names</span>
-            <input type="checkbox" id="chk-note-names" checked>
-          </div>
-          <div class="dd-row">
-            <span class="dd-lbl">Key hints</span>
-            <input type="checkbox" id="chk-key-hints" checked>
-          </div>
-        </div>
-      </div>
-
       <!-- Metronome -->
       <div class="dropdown" id="dd-metro">
-        <button class="cp-icon" id="btn-metronome" aria-label="Metronome">
+        <button class="cp-icon" id="btn-metronome" title="Metronome" aria-label="Metronome">
           <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4.5 12h5M7 12V5M3 12 7 3l4 9"/>
             <line x1="9" y1="6.5" x2="7" y2="8"/>
           </svg>
         </button>
         <div class="dd-menu" id="metro-menu">
+          <div class="dd-title">Metronome</div>
           <div class="dd-row">
             <span class="dd-lbl">BPM</span>
             <div class="bpm-wrap">
@@ -644,6 +526,47 @@
         </div>
       </div>
 
+      <!-- Display settings -->
+      <div class="dropdown" id="dd-settings">
+        <button class="cp-icon" id="btn-settings" title="Display settings" aria-label="Display settings">
+          <!-- Sliders / display settings icon -->
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <line x1="2" y1="4" x2="12" y2="4"/>
+            <circle cx="5" cy="4" r="1.5" fill="currentColor" stroke="none"/>
+            <line x1="2" y1="8" x2="12" y2="8"/>
+            <circle cx="9" cy="8" r="1.5" fill="currentColor" stroke="none"/>
+            <line x1="2" y1="12" x2="12" y2="12"/>
+            <circle cx="6" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </button>
+        <div class="dd-menu" id="settings-menu">
+          <div class="dd-title">Display</div>
+          <div class="dd-row">
+            <span class="dd-lbl">Note names</span>
+            <input type="checkbox" id="chk-note-names" checked>
+          </div>
+          <div class="dd-row">
+            <span class="dd-lbl">Key hints</span>
+            <input type="checkbox" id="chk-key-hints" checked>
+          </div>
+          <div class="dd-hr"></div>
+          <div class="dd-row">
+            <span class="dd-lbl">Strict rows</span>
+            <input type="checkbox" id="chk-strict-rows">
+          </div>
+          <div class="dd-hr"></div>
+          <div class="dd-row">
+            <span class="dd-lbl">Accent</span>
+            <div class="accent-chips">
+              <div class="accent-chip active" data-accent="gold"    style="background:#c49a2a" title="Gold"></div>
+              <div class="accent-chip"        data-accent="blue"    style="background:#3b82f6" title="Blue"></div>
+              <div class="accent-chip"        data-accent="emerald" style="background:#10b981" title="Emerald"></div>
+              <div class="accent-chip"        data-accent="rose"    style="background:#f43f5e" title="Rose"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <button id="btn-fullscreen" title="Fullscreen (F11)" aria-label="Toggle fullscreen">
         <svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M1 5V1h4M9 1h4v4M13 9v4H9M5 13H1V9"/>
@@ -653,231 +576,214 @@
   </header>
 
   <!-- ══ Studio Area ════════════════════════════════════════ -->
-  <div id="studio-area">
+  <div id="studio-wrap">
+    <div id="studio-area">
 
-    <!-- Q1: Waveform -->
-    <div class="quad" id="quad-waveform">
-      <div class="q-hdr">
-        <span class="q-title">Waveform</span>
-        <div class="viz-toggle">
-          <button class="viz-btn active" id="btn-viz-scope">SCOPE</button>
-          <button class="viz-btn" id="btn-viz-spectrum">SPECTRUM</button>
-        </div>
-      </div>
-      <div class="q-body" style="padding:7px">
-        <canvas id="waveform-canvas"></canvas>
-      </div>
-    </div>
-
-    <!-- Q2: Oscillator -->
-    <div class="quad" id="quad-osc">
-      <div class="q-hdr"><span class="q-title">Oscillator</span></div>
-      <div class="q-body">
-        <div class="preset-row">
-          <button class="preset-btn active" data-preset="piano">PIANO</button>
-          <button class="preset-btn" data-preset="bright">BRIGHT</button>
-          <button class="preset-btn" data-preset="warm">WARM</button>
-          <button class="preset-btn" data-preset="bell">BELL</button>
-        </div>
-        <div class="knob-row">
-          <div class="knob-wrap" data-knob="detune" data-value="0.5">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(0deg)"></div>
-            </div>
-            <span class="knob-lbl">Detune</span>
-            <span class="knob-val">0.0¢</span>
-          </div>
-          <div class="knob-wrap" data-knob="harmonic" data-value="0.5">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(0deg)"></div>
-            </div>
-            <span class="knob-lbl">Harmonic</span>
-            <span class="knob-val">50%</span>
+      <!-- Q1: Waveform -->
+      <div class="quad" id="quad-waveform">
+        <div class="q-hdr">
+          <span class="q-title">Waveform</span>
+          <div class="viz-toggle">
+            <button class="viz-btn active" id="btn-viz-scope">SCOPE</button>
+            <button class="viz-btn" id="btn-viz-spectrum">SPECTRUM</button>
           </div>
         </div>
+        <div class="q-body" style="padding:7px">
+          <canvas id="waveform-canvas"></canvas>
+        </div>
       </div>
-    </div>
 
-    <!-- Q3: Envelope -->
-    <div class="quad" id="quad-env">
-      <div class="q-hdr"><span class="q-title">Envelope</span></div>
-      <div class="q-body">
-        <div class="knob-row">
-          <div class="knob-wrap" data-knob="attack" data-value="0.3">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="25.447 87.65" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(-54deg)"></div>
-            </div>
-            <span class="knob-lbl">Attack</span>
-            <span class="knob-val">0.3×</span>
+      <!-- Vertical resize handle -->
+      <div class="rh-v" id="rh-v"></div>
+
+      <!-- Q2: Oscillator -->
+      <div class="quad" id="quad-osc">
+        <div class="q-hdr"><span class="q-title">Oscillator</span></div>
+        <div class="q-body">
+          <div class="preset-row">
+            <button class="preset-btn active" data-preset="piano">PIANO</button>
+            <button class="preset-btn" data-preset="bright">BRIGHT</button>
+            <button class="preset-btn" data-preset="warm">WARM</button>
+            <button class="preset-btn" data-preset="bell">BELL</button>
           </div>
-          <div class="knob-wrap" data-knob="decay" data-value="0.4">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="33.929 79.168" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(-27deg)"></div>
+          <div class="knob-row">
+            <div class="knob-wrap" data-knob="detune" data-value="0.5">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(0deg)"></div>
+              </div>
+              <span class="knob-lbl">Detune</span>
+              <span class="knob-val">0.0¢</span>
             </div>
-            <span class="knob-lbl">Decay</span>
-            <span class="knob-val">0.4×</span>
-          </div>
-          <div class="knob-wrap" data-knob="sustain-level" data-value="0.5">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(0deg)"></div>
+            <div class="knob-wrap" data-knob="harmonic" data-value="0.5">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(0deg)"></div>
+              </div>
+              <span class="knob-lbl">Harmonic</span>
+              <span class="knob-val">50%</span>
             </div>
-            <span class="knob-lbl">Sustain</span>
-            <span class="knob-val">0.5×</span>
-          </div>
-          <div class="knob-wrap" data-knob="release" data-value="0.3">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="25.447 87.65" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(-54deg)"></div>
-            </div>
-            <span class="knob-lbl">Release</span>
-            <span class="knob-val">0.3×</span>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Q4: Effects & Mix -->
-    <div class="quad" id="quad-fx">
-      <div class="q-hdr"><span class="q-title">Effects &amp; Mix</span></div>
-      <div class="q-body">
-        <div class="knob-row">
-          <div class="knob-wrap" data-knob="reverb" data-value="0">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="0 113.097" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(-135deg)"></div>
+      <!-- Horizontal resize handle -->
+      <div class="rh-h" id="rh-h"></div>
+
+      <!-- Q3: Envelope -->
+      <div class="quad" id="quad-env">
+        <div class="q-hdr"><span class="q-title">Envelope</span></div>
+        <div class="q-body">
+          <div class="knob-row">
+            <div class="knob-wrap" data-knob="attack" data-value="0.3">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="25.447 87.65" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(-54deg)"></div>
+              </div>
+              <span class="knob-lbl">Attack</span>
+              <span class="knob-val">0.3×</span>
             </div>
-            <span class="knob-lbl">Reverb</span>
-            <span class="knob-val">0%</span>
-          </div>
-          <div class="knob-wrap" data-knob="room" data-value="0.5">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(0deg)"></div>
+            <div class="knob-wrap" data-knob="decay" data-value="0.4">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="33.929 79.168" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(-27deg)"></div>
+              </div>
+              <span class="knob-lbl">Decay</span>
+              <span class="knob-val">0.4×</span>
             </div>
-            <span class="knob-lbl">Room</span>
-            <span class="knob-val">50%</span>
-          </div>
-          <div class="knob-wrap" data-knob="bass-eq" data-value="0.5">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(0deg)"></div>
+            <div class="knob-wrap" data-knob="sustain-level" data-value="0.5">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(0deg)"></div>
+              </div>
+              <span class="knob-lbl">Sustain</span>
+              <span class="knob-val">0.5×</span>
             </div>
-            <span class="knob-lbl">Bass EQ</span>
-            <span class="knob-val">0dB</span>
-          </div>
-          <div class="knob-wrap" data-knob="treble-eq" data-value="0.5">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(0deg)"></div>
+            <div class="knob-wrap" data-knob="release" data-value="0.3">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="25.447 87.65" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(-54deg)"></div>
+              </div>
+              <span class="knob-lbl">Release</span>
+              <span class="knob-val">0.3×</span>
             </div>
-            <span class="knob-lbl">Treble EQ</span>
-            <span class="knob-val">0dB</span>
-          </div>
-          <div class="knob-wrap" data-knob="master-vol" data-value="0.7">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="59.376 53.721" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(54deg)"></div>
-            </div>
-            <span class="knob-lbl">Volume</span>
-            <span class="knob-val">70%</span>
-          </div>
-          <div class="knob-wrap" data-knob="sus-pedal" data-value="0">
-            <div class="knob-ring">
-              <svg viewBox="0 0 50 50" width="50" height="50">
-                <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5"
-                        stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-                <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--gold)" stroke-width="3.5"
-                        stroke-dasharray="0 113.097" stroke-linecap="round" transform="rotate(-225 25 25)"/>
-              </svg>
-              <div class="knob-cap" style="transform:rotate(-135deg)"></div>
-            </div>
-            <span class="knob-lbl">Sustain</span>
-            <span class="knob-val">Off</span>
           </div>
         </div>
       </div>
-    </div>
 
-  </div>
+      <!-- Q4: Effects & Mix -->
+      <div class="quad" id="quad-fx">
+        <div class="q-hdr"><span class="q-title">Effects &amp; Mix</span></div>
+        <div class="q-body">
+          <div class="knob-row">
+            <div class="knob-wrap" data-knob="reverb" data-value="0">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="0 113.097" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(-135deg)"></div>
+              </div>
+              <span class="knob-lbl">Reverb</span>
+              <span class="knob-val">0%</span>
+            </div>
+            <div class="knob-wrap" data-knob="room" data-value="0.5">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(0deg)"></div>
+              </div>
+              <span class="knob-lbl">Room</span>
+              <span class="knob-val">2.6s</span>
+            </div>
+            <div class="knob-wrap" data-knob="bass-eq" data-value="0.5">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(0deg)"></div>
+              </div>
+              <span class="knob-lbl">Bass EQ</span>
+              <span class="knob-val">0dB</span>
+            </div>
+            <div class="knob-wrap" data-knob="treble-eq" data-value="0.5">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="42.412 70.685" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(0deg)"></div>
+              </div>
+              <span class="knob-lbl">Treble EQ</span>
+              <span class="knob-val">0dB</span>
+            </div>
+            <div class="knob-wrap" data-knob="master-vol" data-value="0.7">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="59.376 53.721" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(54deg)"></div>
+              </div>
+              <span class="knob-lbl">Volume</span>
+              <span class="knob-val">70%</span>
+            </div>
+            <div class="knob-wrap" data-knob="sus-pedal" data-value="0">
+              <div class="knob-ring">
+                <svg viewBox="0 0 50 50" width="50" height="50">
+                  <circle cx="25" cy="25" r="18" fill="none" stroke="#252530" stroke-width="3.5" stroke-dasharray="84.823 28.274" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                  <circle class="k-fill" cx="25" cy="25" r="18" fill="none" stroke="var(--accent)" stroke-width="3.5" stroke-dasharray="0 113.097" stroke-linecap="round" transform="rotate(-225 25 25)"/>
+                </svg>
+                <div class="knob-cap" style="transform:rotate(-135deg)"></div>
+              </div>
+              <span class="knob-lbl">Sustain</span>
+              <span class="knob-val">Off</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <!-- ══ Piano Dock ═════════════════════════════════════════ -->
+    </div><!-- #studio-area -->
+  </div><!-- #studio-wrap -->
+
+  <!-- ══ Dock resize grip ═══════════════════════════════════ -->
+  <div id="dock-resize"></div>
+
+  <!-- ══ Piano Dock ════════════════════════════════════════ -->
   <div id="piano-dock">
     <div id="dock-toolbar">
       <div class="dock-left">
         <span class="hint-badge">Z</span>
         <button class="oct-btn" id="btn-down" aria-label="Octave down">
-          <svg width="7" height="9" viewBox="0 0 8 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6,1 2,5 6,9"/>
-          </svg>
+          <svg width="7" height="9" viewBox="0 0 8 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,1 2,5 6,9"/></svg>
         </button>
         <div class="octave-display">
           <span class="oct-lbl">Oct</span>
-          <span id="octave-value">4</span>
+          <span id="octave-value" class="oct-val">4</span>
         </div>
         <button class="oct-btn" id="btn-up" aria-label="Octave up">
-          <svg width="7" height="9" viewBox="0 0 8 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="2,1 6,5 2,9"/>
-          </svg>
+          <svg width="7" height="9" viewBox="0 0 8 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,1 6,5 2,9"/></svg>
         </button>
         <span class="hint-badge">X</span>
       </div>
@@ -894,12 +800,22 @@
         <input type="range" id="volume-slider" min="0" max="100" value="70" aria-label="Volume">
         <span id="volume-value">70%</span>
       </div>
-    </div>
+    </div><!-- #dock-toolbar -->
 
     <div id="piano-layers">
+
       <!-- Upper piano — dual mode only -->
       <div id="piano-area-upper" class="piano-row hidden">
-        <span class="row-lbl">High</span>
+        <!-- Independent octave controls for upper piano -->
+        <div class="row-oct">
+          <button class="oct-btn" id="btn-up-upper" aria-label="Upper octave up">
+            <svg width="7" height="9" viewBox="0 0 8 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,1 6,5 2,9"/></svg>
+          </button>
+          <span id="octave-value-upper" class="oct-val">6</span>
+          <button class="oct-btn" id="btn-down-upper" aria-label="Upper octave down">
+            <svg width="7" height="9" viewBox="0 0 8 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,1 2,5 6,9"/></svg>
+          </button>
+        </div>
         <div id="piano-viewport-upper">
           <div id="piano-upper"><!-- keys built by renderer.js --></div>
         </div>
@@ -907,22 +823,22 @@
 
       <!-- Main piano -->
       <div id="piano-area" class="piano-row">
+        <!-- Sustain strip — hidden visually but kept in DOM for JS -->
         <div id="sustain-strip">
-          <span class="s-lbl">Max</span>
           <div id="strip-track">
             <div id="strip-fill"></div>
             <div id="strip-thumb"></div>
           </div>
-          <span class="s-lbl">Off</span>
         </div>
         <div id="piano-viewport">
           <div id="piano"><!-- keys built by renderer.js --></div>
         </div>
       </div>
-    </div>
-  </div>
 
-</div>
+    </div><!-- #piano-layers -->
+  </div><!-- #piano-dock -->
+
+</div><!-- #app -->
 <script type="module" src="renderer.js"></script>
 </body>
 </html>
