@@ -8,6 +8,8 @@ A desktop piano that turns your laptop keyboard into a playable instrument. No h
 
 Built with **Electron** and the **Web Audio API**. Audio is synthesised using a physically-modelled grand piano engine: zone-based harmonic profiles, detuned unison oscillators (string coupling), natural decay envelopes, and bandpass-filtered noise bursts for hammer strikes.
 
+![KeyPiano Studio](screenshot.png)
+
 ---
 
 ## Features
