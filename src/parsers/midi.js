@@ -1,10 +1,10 @@
 /**
  * Convert a MIDI note number to a note name string.
  * @param {number} n - MIDI note number 0–127
- * @returns {string} e.g. "C4", "F#3", "Bb5"
+ * @returns {string} e.g. "C4", "F♯3", "B♭5"
  */
 export function midiToName(n) {
-  const names = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+  const names = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
   return names[n % 12] + (Math.floor(n / 12) - 1);
 }
 

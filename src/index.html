@@ -2,12 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>KeyPiano</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
+    @font-face {
+      font-family: 'Cormorant Garamond';
+      font-style: normal;
+      font-weight: 300 500;
+      font-display: swap;
+      src: url('./fonts/cormorant-garamond.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Cormorant Garamond';
+      font-style: italic;
+      font-weight: 300 400;
+      font-display: swap;
+      src: url('./fonts/cormorant-garamond-italic.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Montserrat';
+      font-style: normal;
+      font-weight: 300 600;
+      font-display: swap;
+      src: url('./fonts/montserrat.woff2') format('woff2');
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -404,7 +424,7 @@
       background: linear-gradient(180deg, #202026 0%, #161618 30%, #0e0e12 70%, #0a0a0e 100%);
       border-left: 1px solid #303038; border-right: 1px solid #282830;
       border-bottom: 2px solid #1a1a20; border-radius: 0 0 4px 4px;
-      display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 8px; z-index: 2;
       transition: background var(--tf) var(--ease), box-shadow var(--tf) var(--ease), transform var(--tf) var(--ease);
       box-shadow: 3px 10px 20px rgba(0,0,0,0.9), inset 0 2px 0 rgba(255,255,255,0.07), inset -1px 0 0 rgba(255,255,255,0.03);
     }
@@ -429,6 +449,9 @@
 
     .note-name { font-size: 0.46rem; font-weight: 500; color: #9c9488; margin-bottom: 4px; letter-spacing: 0.04em; transition: color 0.05s; }
     .white-key.active .note-name { color: #6a4c10; }
+    .black-key .note-name { font-size: 0.38rem; color: #a08858; margin-bottom: 3px; opacity: 0; transition: opacity 0.12s, color 0.05s; }
+    .octave-active.black-key .note-name { opacity: 0.55; }
+    .black-key.active .note-name { opacity: 1 !important; color: var(--accent); }
 
     .octave-active.white-key { background: linear-gradient(180deg, #f7f2ea 0%, #ebe4d6 55%, #ddd5c4 100%); }
     .octave-active.black-key { background: linear-gradient(180deg, #211f27 0%, #181620 30%, #100e16 70%, #0c0a12 100%); }
@@ -469,11 +492,6 @@
         Load
       </button>
       <input type="file" id="file-input" accept=".mid,.midi,.kps,.json" style="display:none">
-
-      <button class="cp-btn rec" id="btn-record">
-        <svg width="7" height="7" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="3.5"/></svg>
-        Rec
-      </button>
 
       <div class="cp-sep"></div>
       <span id="piece-title">no file loaded</span>
@@ -602,8 +620,8 @@
         <div class="q-body">
           <div class="preset-row">
             <button class="preset-btn active" data-preset="piano">PIANO</button>
-            <button class="preset-btn" data-preset="bright">BRIGHT</button>
-            <button class="preset-btn" data-preset="warm">WARM</button>
+            <button class="preset-btn" data-preset="organ">ORGAN</button>
+            <button class="preset-btn" data-preset="brass">BRASS</button>
             <button class="preset-btn" data-preset="bell">BELL</button>
           </div>
           <div class="knob-row">

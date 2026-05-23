@@ -32,6 +32,9 @@ pids/
 .vscode/
 .idea/
 .claude/
+
+# User-facing docs kept out of version control
+USER_GUIDE.md
 *.suo
 *.ntvs*
 *.njsproj

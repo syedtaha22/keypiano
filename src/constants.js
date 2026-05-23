@@ -22,7 +22,7 @@ export const BLACK_NOTE_DEFS = [[1, 1], [3, 2], [6, 4], [8, 5], [10, 6]];
 export const NI_TO_WHITE_POS = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
 
 /** Canonical note names indexed by note index 0–11. */
-export const NOTE_NAMES = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+export const NOTE_NAMES = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
 
 /**
  * Maps keyboard event codes to piano note definitions.
@@ -77,6 +77,12 @@ export function whiteKeyAt(wkIdx) {
  * Given a whiteKeyStart index, return the 6 black keys for the top row.
  * Gaps (E–F, B–C) where no black key exists are returned as null.
  *
+ * The six top-row keys (W E T Y U O) correspond to white-key pair offsets
+ * [0,1,3,4,5,7] within the nine bottom-row keys, matching the physical
+ * keyboard stagger. Offsets 2 and 6 (the R and I positions) are absent
+ * because those physical gaps align with the E–F and B–C positions where
+ * no black key exists on a piano.
+ *
  * @param {number} wkStart
  * @returns {Array<{ni:number, oct:number}|null>}  length always 6
  */
@@ -85,13 +91,10 @@ export function getStrictTopRow(wkStart) {
   for (let i = 0; i < 8 && result.length < 6; i++) {
     const wk1 = whiteKeyAt(wkStart + i);
     const wk2 = whiteKeyAt(wkStart + i + 1);
-    // Semitone gap between consecutive white keys: 2 = black key exists, 1 = no black
     const gap = wk2.ni > wk1.ni
       ? wk2.ni - wk1.ni
-      : (12 - wk1.ni) + wk2.ni; // crossing octave boundary (B→C)
-    if (gap === 2) {
-      result.push({ ni: wk1.ni + 1, oct: wk1.oct });
-    }
+      : (12 - wk1.ni) + wk2.ni;
+    if (gap === 2) { result.push({ ni: wk1.ni + 1, oct: wk1.oct }); }
   }
   while (result.length < 6) { result.push(null); }
   return result;

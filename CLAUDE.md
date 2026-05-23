@@ -67,14 +67,14 @@ A simple JSON format designed to be LLM-friendly:
   "tempo": 120,
   "notes": [
     { "note": "C4",  "time": 0.0, "duration": 1.0 },
-    { "note": "Eb4", "time": 1.0, "duration": 0.5 },
+    { "note": "E♭4", "time": 1.0, "duration": 0.5 },
     { "note": "G4",  "time": 1.5, "duration": 0.5 }
   ]
 }
 ```
 
 - `time` and `duration` are in **quarter-note beats** (not seconds)
-- `note` is note name + octave: `C4`, `F#3`, `Bb4`, `G#2`, etc.
+- `note` is note name + octave: `C4`, `F♯3`, `B♭4`, `G♯2`, etc.
 - Polyphony is natural — multiple notes with the same `time` play simultaneously
 
 ---
@@ -127,8 +127,8 @@ var currentScore  = null;        // loaded {title, tempo, notes[]}
 ## Keyboard mapping
 
 ```
-A W S E D F T G Y H U J  →  C C# D Eb E F F# G Ab A Bb B  (current octave)
-K O L                    →  C C# D  (current octave + 1)
+A W S E D F T G Y H U J  →  C C♯ D E♭ E F F♯ G A♭ A B♭ B  (current octave)
+K O L                    →  C C♯ D  (current octave + 1)
 Z / X                    →  octave down / up (resets noteShift)
 ← / →                    →  semitone shift (noteShift -1 / +1)
 Space                    →  sustain pedal toggle

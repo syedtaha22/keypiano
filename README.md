@@ -30,18 +30,18 @@ Built with **Electron** and the **Web Audio API**. Audio is synthesised using a 
 ```
   W  E     T  Y  U     O
  A  S  D  F  G  H  J  K  L
- C  C# D  Eb E  F  F# G  Ab A  Bb B  | C  C# D
+ C  C♯ D  E♭ E  F  F♯ G  A♭ A  B♭ B  | C  C♯ D
 ```
 
 | Key | Note | | Key | Note |
 |-----|------|-|-----|------|
 | `A` | C  | | `G` | G  |
-| `W` | C# | | `Y` | G# |
+| `W` | C♯ | | `Y` | G♯ |
 | `S` | D  | | `H` | A  |
-| `E` | Eb | | `U` | Bb |
+| `E` | E♭ | | `U` | B♭ |
 | `D` | E  | | `J` | B  |
 | `F` | F  | | `K` | C+1 |
-| `T` | F# | | `O` | C#+1 |
+| `T` | F♯ | | `O` | C♯+1 |
 |     |    | | `L` | D+1 |
 
 ### Transport controls
@@ -122,14 +122,14 @@ KeyPiano Score is a simple JSON format for compositions:
   "tempo": 120,
   "notes": [
     { "note": "C4",  "time": 0.0, "duration": 1.0 },
-    { "note": "Eb4", "time": 1.0, "duration": 0.5 },
+    { "note": "E♭4", "time": 1.0, "duration": 0.5 },
     { "note": "G4",  "time": 1.5, "duration": 0.5 }
   ]
 }
 ```
 
 - `time` and `duration` are in **quarter-note beats**, not seconds
-- `note` is name + octave: `C4`, `F#3`, `Bb4`, `G#2`
+- `note` is name + octave: `C4`, `F♯3`, `B♭4`, `G♯2`
 - Simultaneous notes are natural — give them the same `time`
 
 ---

@@ -78,7 +78,7 @@ export function refreshUpperOctaveUI() {
   const vpU    = document.getElementById('piano-viewport-upper');
   if (!pianoU || !vpU) { return; }
   const vw     = vpU.offsetWidth;
-  const totalW = 50 * WKW;
+  const totalW = 49 * WKW;
   const gIdx   = (state.upperOctave - OCT_MIN) * 7;
   let tx = -(gIdx * WKW - Math.floor(vw / 4));
   tx = Math.min(0, Math.max(-(totalW - vw), tx));

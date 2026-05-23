@@ -1,18 +1,75 @@
 {
   "name": "keypiano",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Laptop keyboard piano with a physically-modelled grand piano synthesiser",
-  "main": "src/main.js",
+  "main": "src/main.cjs",
+  "type": "module",
   "scripts": {
     "start": "electron .",
-    "lint": "eslint src --ext .js",
-    "lint:fix": "eslint src --ext .js --fix",
-    "format": "prettier --write \"src/**/*.js\""
+    "lint": "eslint src --ext .js,.cjs",
+    "lint:fix": "eslint src --ext .js,.cjs --fix",
+    "format": "prettier --write \"src/**/*.{js,cjs}\"",
+    "test": "node --test test/unit.test.js",
+    "dist": "electron-builder --publish never",
+    "pack": "electron-builder --dir"
   },
   "devDependencies": {
     "electron": "^30.0.0",
+    "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
     "playwright": "^1.60.0",
     "prettier": "^3.2.0"
+  },
+  "build": {
+    "appId": "com.keypiano.desktop",
+    "productName": "KeyPiano",
+    "copyright": "Copyright © 2024 KeyPiano",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.music"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "category": "Audio"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico"
+    }
   }
 }

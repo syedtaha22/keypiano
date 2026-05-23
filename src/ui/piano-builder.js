@@ -47,8 +47,12 @@ export function buildPiano(targetId = 'piano') {
         bk.dataset.oct = oct;
         bk.dataset.ni  = bni;
         bk.style.left  = `${wIdx * WKW - BKW / 2}px`;
+        const bnm = document.createElement('span');
+        bnm.className   = 'note-name';
+        bnm.textContent = NOTE_NAMES[bni] + oct;
         const bl = document.createElement('span');
         bl.className = 'key-label';
+        bk.appendChild(bnm);
         bk.appendChild(bl);
         blacks.push(bk);
       });

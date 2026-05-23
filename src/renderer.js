@@ -94,6 +94,13 @@ document.addEventListener('keyup', e => {
   releaseNote(`kbd_${e.code}`);
 });
 
+// Release all held keys when the window loses focus (e.g. Alt-Tab) so notes
+// don't get stuck when keyup events are missed.
+window.addEventListener('blur', () => {
+  state.heldCodes.forEach(code => releaseNote(`kbd_${code}`));
+  state.heldCodes.clear();
+});
+
 /* ── Octave controls (lower) ──────────────────────────────────────────── */
 
 document.getElementById('btn-down').addEventListener('click', () => {
@@ -172,12 +179,6 @@ document.getElementById('btn-play').addEventListener('click', () => {
   if (state.currentScore) { schedulePlayback(state.currentScore); }
 });
 document.getElementById('btn-stop').addEventListener('click', stopPlayback);
-
-/* ── Record (stub) ────────────────────────────────────────────────────── */
-
-document.getElementById('btn-record').addEventListener('click', function () {
-  this.classList.toggle('recording');
-});
 
 /* ── Dropdowns ────────────────────────────────────────────────────────── */
 
@@ -280,8 +281,10 @@ document.getElementById('btn-layout-dual').addEventListener('click', () => {
 
 /* ── Waveform visualizer ──────────────────────────────────────────────── */
 
-function getAccentColor() {
-  return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c49a2a';
+// Cached so getComputedStyle is not called on every animation frame.
+let cachedAccent = '#c49a2a';
+function refreshAccentCache() {
+  cachedAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#c49a2a';
 }
 
 function startVizLoop() {
@@ -305,7 +308,7 @@ function startVizLoop() {
     ctx2d.fillStyle = '#09090b';
     ctx2d.fillRect(0, 0, W, H);
 
-    const accent = getAccentColor();
+    const accent = cachedAccent;
 
     if (state.vizMode === 'scope') {
       analyser.getByteTimeDomainData(timeBuf);
@@ -477,7 +480,7 @@ function setupPianoDrag(vpId, pianoId) {
     if (!dragging) { return; }
     const piano  = document.getElementById(pianoId);
     if (!piano) { return; }
-    const totalW = 50 * WKW;
+    const totalW = 49 * WKW;
     const vw     = vp.offsetWidth;
     const tx     = Math.min(0, Math.max(-(totalW - vw), startTx + (e.clientX - startX)));
     piano.style.transform = `translateX(${tx.toFixed(1)}px)`;
@@ -605,6 +608,7 @@ function setupAccentPicker() {
       root.style.setProperty('--accent-glow', `rgba(${p.r},${p.g},${p.b},0.14)`);
       root.style.setProperty('--accent-tr',   `rgba(${p.r},${p.g},${p.b},0.06)`);
       state.accentKey = key;
+      refreshAccentCache();
       document.querySelectorAll('.accent-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
     });
@@ -624,4 +628,5 @@ setupPianoDrag('piano-viewport', 'piano');
 setupPianoDrag('piano-viewport-upper', 'piano-upper');
 setupPaneResize();
 setupAccentPicker();
+refreshAccentCache();
 startVizLoop();
