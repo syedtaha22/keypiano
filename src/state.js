@@ -11,6 +11,9 @@ export const state = {
   savedSustain:  0.7,
   isPlaying:     false,
   currentScore:  null,
+  playbackStartAudioTime: 0,
+  playbackDuration:       0,
+  playbackPausePosition:  0,
 
   /** sid → { s, ni, oct }  — notes currently sounding via keyboard/mouse */
   activeSounds:    new Map(),

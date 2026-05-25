@@ -9,10 +9,10 @@ import { buildPiano } from './ui/piano-builder.js';
 import { initSustainStrip, setSustain } from './ui/sustain-strip.js';
 import { refreshOctaveUI, refreshUpperOctaveUI, updateViewport } from './ui/viewport.js';
 import { pressNote, releaseNote } from './ui/interactions.js';
-import { schedulePlayback, stopPlayback } from './audio/playback.js';
+import { schedulePlayback, pausePlayback, stopPlayback } from './audio/playback.js';
 import { parseMidi } from './parsers/midi.js';
 import { parseKPS } from './parsers/kps.js';
-import { getAnalyser, setReverb, setRoomSize, setBassEQ, setTrebleEQ } from './audio/context.js';
+import { getCtx, getAnalyser, setReverb, setRoomSize, setBassEQ, setTrebleEQ, getRecordingStream } from './audio/context.js';
 import { clearWaveCache } from './audio/piano-model.js';
 import { startMetronome, stopMetronome } from './audio/metronome.js';
 
@@ -164,10 +164,25 @@ document.getElementById('file-input').addEventListener('change', function (e) {
       document.getElementById('piece-title').textContent = 'load error';
       return;
     }
+    stopPlayback(); // cancel any in-progress playback + reset transport
     state.currentScore = score;
+    state.playbackPausePosition = 0;
     document.getElementById('piece-title').textContent = score.title ?? file.name;
-    document.getElementById('btn-play').disabled = false;
-    document.getElementById('btn-stop').disabled = true;
+    document.getElementById('btn-playstop').disabled = false;
+    document.getElementById('btn-playstop').setAttribute('aria-label', 'Play');
+    document.getElementById('btn-export').disabled = false;
+    if (score.notes.length) {
+      const spb = 60 / score.tempo;
+      const last = score.notes[score.notes.length - 1];
+      state.playbackDuration = (last.time + last.duration) * spb;
+    }
+    document.getElementById('tl-total').textContent = fmtTime(state.playbackDuration);
+    document.getElementById('tl-elapsed').textContent = '0:00';
+    document.getElementById('tl-fill').style.width = '0%';
+    const tlPhLoad = document.getElementById('tl-ph');
+    if (tlPhLoad) { tlPhLoad.style.left = '0%'; }
+    buildTimelineTicks();
+    document.getElementById('timeline').classList.add('has-score');
   };
 
   if (isMidi) { reader.readAsArrayBuffer(file); }
@@ -175,10 +190,20 @@ document.getElementById('file-input').addEventListener('change', function (e) {
   e.target.value = '';
 });
 
-document.getElementById('btn-play').addEventListener('click', () => {
-  if (state.currentScore) { schedulePlayback(state.currentScore); }
+document.getElementById('btn-playstop').addEventListener('click', () => {
+  if (state.isPlaying) {
+    pausePlayback();
+  } else if (state.playbackPausePosition > 0 && state.currentScore) {
+    schedulePlayback(state.currentScore, state.playbackPausePosition);
+  } else if (state.currentScore) {
+    schedulePlayback(state.currentScore, 0);
+  }
 });
-document.getElementById('btn-stop').addEventListener('click', stopPlayback);
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  return `${m}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+}
 
 /* ── Dropdowns ────────────────────────────────────────────────────────── */
 
@@ -288,15 +313,27 @@ function refreshAccentCache() {
 }
 
 function startVizLoop() {
-  const canvas  = document.getElementById('waveform-canvas');
-  const ctx2d   = canvas.getContext('2d');
-  const analyser = getAnalyser();
-  const bufLen  = analyser.fftSize;
-  const timeBuf = new Uint8Array(bufLen);
-  const freqBuf = new Uint8Array(analyser.frequencyBinCount);
+  const canvas    = document.getElementById('waveform-canvas');
+  const ctx2d     = canvas.getContext('2d');
+  const analyser  = getAnalyser();
+  const bufLen    = analyser.fftSize;
+  const timeBuf   = new Uint8Array(bufLen);
+  const freqBuf   = new Uint8Array(analyser.frequencyBinCount);
+  const tlFill    = document.getElementById('tl-fill');
+  const tlElapsed = document.getElementById('tl-elapsed');
+  const tlPh      = document.getElementById('tl-ph');
 
   function draw() {
     requestAnimationFrame(draw);
+
+    if (state.isPlaying && state.playbackDuration > 0) {
+      const elapsed = Math.max(0, getCtx().currentTime - state.playbackStartAudioTime);
+      const clamped = Math.min(elapsed, state.playbackDuration);
+      const pct     = `${(clamped / state.playbackDuration * 100).toFixed(1)}%`;
+      tlFill.style.width    = pct;
+      tlElapsed.textContent = fmtTime(clamped);
+      if (tlPh) { tlPh.style.left = pct; }
+    }
     const W = canvas.clientWidth;
     const H = canvas.clientHeight;
     if (!W || !H) { return; }
@@ -620,6 +657,196 @@ function setupAccentPicker() {
   });
 }
 
+/* ── Timeline ruler ticks ─────────────────────────────────────────────── */
+
+function buildTimelineTicks() {
+  const ticksEl = document.getElementById('tl-ticks');
+  const subsEl  = document.getElementById('tl-subs');
+  if (!ticksEl || !subsEl) { return; }
+
+  const dur   = state.playbackDuration;
+  const BEATS = 16;
+  const SUBS  = 64;
+
+  ticksEl.innerHTML = '';
+  subsEl.innerHTML  = '';
+
+  for (let i = 0; i < BEATS; i++) {
+    const b = document.createElement('div');
+    b.className = 'tl-beat' + (i % 4 === 0 ? ' bar' : '');
+    if (i > 0 && i % 4 === 0 && dur > 0) {
+      const lbl = document.createElement('span');
+      lbl.className   = 'tl-lbl';
+      lbl.textContent = fmtTime((i / BEATS) * dur);
+      b.appendChild(lbl);
+    }
+    ticksEl.appendChild(b);
+  }
+
+  for (let i = 0; i < SUBS; i++) {
+    const s = document.createElement('div');
+    s.className = 'tl-sub';
+    subsEl.appendChild(s);
+  }
+}
+
+/* ── Seekable timeline ────────────────────────────────────────────────── */
+
+function setupTimeline() {
+  const track = document.getElementById('tl-track');
+  if (!track) { return; }
+  let seeking = false;
+
+  function seekTo(fraction) {
+    if (!state.currentScore || state.playbackDuration <= 0) { return; }
+    const pos = Math.max(0, Math.min(state.playbackDuration, fraction * state.playbackDuration));
+    const pct = `${(fraction * 100).toFixed(1)}%`;
+    state.playbackPausePosition = pos;
+    document.getElementById('tl-fill').style.width    = pct;
+    document.getElementById('tl-elapsed').textContent = fmtTime(pos);
+    const ph = document.getElementById('tl-ph');
+    if (ph) { ph.style.left = pct; }
+    if (state.isPlaying) { schedulePlayback(state.currentScore, pos); }
+  }
+
+  track.addEventListener('mousedown', e => {
+    if (!state.currentScore) { return; }
+    seeking = true;
+    const rect = track.getBoundingClientRect();
+    seekTo(Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)));
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!seeking) { return; }
+    const r = document.getElementById('tl-track').getBoundingClientRect();
+    seekTo(Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)));
+  });
+  document.addEventListener('mouseup', () => { seeking = false; });
+}
+
+/* ── Audio export ─────────────────────────────────────────────────────── */
+
+function encodeWAV(channels, sampleRate) {
+  const numCh          = channels.length;
+  const numFrames      = channels[0].length;
+  const bps            = 16;
+  const bytesPerSample = bps / 8;
+  const blockAlign     = numCh * bytesPerSample;
+  const dataSize       = numFrames * blockAlign;
+  const buf  = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buf);
+  const str  = (s, o) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+
+  str('RIFF', 0);  view.setUint32(4,  36 + dataSize, true);
+  str('WAVE', 8);
+  str('fmt ', 12); view.setUint32(16, 16,         true);
+  view.setUint16(20, 1,          true);
+  view.setUint16(22, numCh,      true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bps,        true);
+  str('data', 36); view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let f = 0; f < numFrames; f++) {
+    for (let c = 0; c < numCh; c++) {
+      const s = Math.max(-1, Math.min(1, channels[c][f]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+      offset += 2;
+    }
+  }
+  return buf;
+}
+
+function setupExport() {
+  const btn = document.getElementById('btn-export');
+  if (!btn) { return; }
+
+  btn.addEventListener('click', () => {
+    if (!state.currentScore || btn.disabled) { return; }
+
+    const fmt       = document.getElementById('export-fmt')?.value ?? 'webm';
+    const stopDelay = (state.playbackDuration + 1.5) * 1000;
+    const title     = (state.currentScore.title ?? 'keypiano-export').replace(/[/\\:*?"<>|]/g, '_');
+
+    btn.disabled = true;
+    btn.querySelector('.btn-label').textContent = 'Recording…';
+    document.getElementById('btn-playstop').disabled = true;
+
+    if (fmt === 'wav') {
+      const ctx        = getCtx();
+      const sampleRate = ctx.sampleRate;
+      const processor  = ctx.createScriptProcessor(4096, 2, 2);
+      const silentGain = ctx.createGain();
+      silentGain.gain.value = 0;
+      const wavCh = [[], []];
+
+      processor.onaudioprocess = e => {
+        wavCh[0].push(new Float32Array(e.inputBuffer.getChannelData(0)));
+        wavCh[1].push(new Float32Array(e.inputBuffer.getChannelData(1)));
+      };
+
+      getAnalyser().connect(processor);
+      processor.connect(silentGain);
+      silentGain.connect(ctx.destination);
+
+      schedulePlayback(state.currentScore, 0);
+
+      setTimeout(() => {
+        processor.disconnect();
+        silentGain.disconnect();
+
+        const len    = wavCh[0].reduce((a, c) => a + c.length, 0);
+        const merged = [new Float32Array(len), new Float32Array(len)];
+        let off = 0;
+        wavCh[0].forEach((c, i) => {
+          merged[0].set(c, off);
+          merged[1].set(wavCh[1][i], off);
+          off += c.length;
+        });
+
+        const wavBuf = encodeWAV(merged, sampleRate);
+        const blob   = new Blob([wavBuf], { type: 'audio/wav' });
+        const url    = URL.createObjectURL(blob);
+        const a      = document.createElement('a');
+        a.href = url; a.download = `${title}.wav`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        btn.disabled = false;
+        btn.querySelector('.btn-label').textContent = 'Export';
+        document.getElementById('btn-playstop').disabled = false;
+      }, stopDelay);
+    } else {
+      const stream   = getRecordingStream();
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : 'audio/webm';
+      const recorder = new MediaRecorder(stream, { mimeType });
+      const chunks   = [];
+
+      recorder.ondataavailable = e => { if (e.data.size > 0) { chunks.push(e.data); } };
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: mimeType });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = `${title}.webm`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        btn.disabled = false;
+        btn.querySelector('.btn-label').textContent = 'Export';
+        document.getElementById('btn-playstop').disabled = false;
+      };
+
+      recorder.start();
+      schedulePlayback(state.currentScore, 0);
+      setTimeout(() => { if (recorder.state !== 'inactive') { recorder.stop(); } }, stopDelay);
+    }
+  });
+}
+
 /* ── Init ─────────────────────────────────────────────────────────────── */
 
 buildPiano();
@@ -634,4 +861,6 @@ setupPianoDrag('piano-viewport-upper', 'piano-upper');
 setupPaneResize();
 setupAccentPicker();
 refreshAccentCache();
+setupTimeline();
+setupExport();
 startVizLoop();

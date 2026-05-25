@@ -122,6 +122,61 @@
     }
     .cp-icon:hover:not(:disabled) { color: var(--accent-br); border-color: var(--accent-dim); background: var(--accent-tr); }
     .cp-icon:disabled { opacity: 0.22; cursor: not-allowed; }
+
+    #btn-playstop .icon-pause { display: none; }
+    #btn-playstop.playing .icon-play  { display: none; }
+    #btn-playstop.playing .icon-pause { display: block; }
+
+    #timeline {
+      flex: 1; display: flex; align-items: center; gap: 7px;
+      min-width: 60px; padding: 0 6px;
+    }
+    .tl-time {
+      font-family: var(--fu); font-size: 0.48rem; font-weight: 600;
+      color: var(--t3); letter-spacing: 0.06em; white-space: nowrap;
+      flex-shrink: 0; opacity: 0.25; transition: opacity 0.2s;
+    }
+    #timeline.has-score .tl-time { opacity: 0.7; }
+    #tl-track {
+      flex: 1; height: 28px;
+      border: 1px solid var(--border); border-radius: 2px; overflow: hidden;
+      position: relative; min-width: 40px; cursor: default;
+      background: var(--s2);
+    }
+    #timeline.has-score #tl-track { cursor: col-resize; }
+    #tl-fill {
+      position: absolute; top: 0; left: 0; bottom: 0; width: 0%;
+      background: var(--accent-tr); pointer-events: none;
+    }
+    #tl-ticks {
+      position: absolute; inset: 0; display: flex; pointer-events: none;
+    }
+    .tl-beat {
+      flex: 1; border-left: 1px solid var(--bsub); position: relative;
+    }
+    .tl-beat.bar { border-left-color: var(--border); }
+    .tl-beat:first-child { border-left: none; }
+    .tl-lbl {
+      font-family: var(--fu); font-size: 7.5px; color: var(--t3);
+      padding: 3px 2px 0; line-height: 1; letter-spacing: 0; display: block;
+    }
+    #tl-subs {
+      position: absolute; inset: 0; display: flex; pointer-events: none;
+    }
+    .tl-sub { flex: 1; border-left: 1px solid #131316; }
+    .tl-sub:first-child { border-left: none; }
+    #tl-ph {
+      position: absolute; top: 0; bottom: 0; left: 0%; width: 1px;
+      background: var(--accent); pointer-events: none; z-index: 5;
+      display: none;
+    }
+    #timeline.has-score #tl-ph { display: block; }
+    #tl-ph::before {
+      content: ''; position: absolute; top: 0; left: -4px;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--accent);
+    }
     .cp-icon.lit { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-tr); }
 
     .cp-sep { width: 1px; height: 14px; background: var(--border); flex-shrink: 0; }
@@ -499,11 +554,35 @@
       <span id="piece-title">no file loaded</span>
       <div class="cp-sep"></div>
 
-      <button class="cp-icon" id="btn-play" disabled aria-label="Play">
-        <svg width="9" height="10" viewBox="0 0 9 10" fill="currentColor"><path d="M1.5 1 8 5 1.5 9V1z"/></svg>
+      <button class="cp-icon" id="btn-playstop" disabled aria-label="Play">
+        <svg class="icon-play" width="9" height="10" viewBox="0 0 9 10" fill="currentColor"><path d="M1.5 1 8 5 1.5 9V1z"/></svg>
+        <svg class="icon-pause" width="9" height="10" viewBox="0 0 9 10" fill="currentColor">
+          <rect x="1.5" y="1" width="2.5" height="8" rx="0.5"/>
+          <rect x="5" y="1" width="2.5" height="8" rx="0.5"/>
+        </svg>
       </button>
-      <button class="cp-icon" id="btn-stop" disabled aria-label="Stop">
-        <svg width="9" height="9" viewBox="0 0 9 9" fill="currentColor"><rect x="1.25" y="1.25" width="6.5" height="6.5" rx="0.75"/></svg>
+
+      <div id="timeline">
+        <span class="tl-time" id="tl-elapsed">0:00</span>
+        <div id="tl-track">
+          <div id="tl-fill"></div>
+          <div id="tl-ticks"></div>
+          <div id="tl-subs"></div>
+          <div id="tl-ph"></div>
+        </div>
+        <span class="tl-time" id="tl-total">0:00</span>
+      </div>
+
+      <div class="cp-sep"></div>
+      <select id="export-fmt">
+        <option value="webm">WebM</option>
+        <option value="wav">WAV</option>
+      </select>
+      <button class="cp-btn" id="btn-export" disabled>
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 9.5h8M6 2v6M3.5 7.5 6 10l2.5-2.5"/>
+        </svg>
+        <span class="btn-label">Export</span>
       </button>
     </div>
 

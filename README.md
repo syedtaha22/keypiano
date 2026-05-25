@@ -148,9 +148,7 @@ Architecture notes and contribution guidelines are in `CLAUDE.md`.
 
 ## Roadmap
 
-- AI composition integration (Magenta.js / MusicTransformer)
 - BPM override field in transport bar
-- Playback progress scrubber and seek
 - Note velocity (MIDI files embed per-note dynamics)
 - Reverb / room simulation
 - Piano roll visualiser

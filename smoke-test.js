@@ -13,7 +13,7 @@ const fs   = require('fs');
   const errors = [];
 
   const app = await electron.launch({
-    args: [path.join(__dirname, 'src', 'main.js')],
+    args: [path.join(__dirname, 'src', 'main.cjs')],
   });
 
   const page = await app.firstWindow();

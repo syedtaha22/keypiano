@@ -93,6 +93,19 @@ export function getMasterGain()   { getCtx(); return masterGain; }
 export function getPlaybackGain() { getCtx(); return playbackGain; }
 export function getAnalyser()     { getCtx(); return analyser; }
 
+/** @type {MediaStreamAudioDestinationNode|null} */
+let streamDest = null;
+
+/** Return a MediaStream tapping the full output — for MediaRecorder export. */
+export function getRecordingStream() {
+  getCtx();
+  if (!streamDest) {
+    streamDest = audioCtx.createMediaStreamDestination();
+    analyser.connect(streamDest);
+  }
+  return streamDest.stream;
+}
+
 /** Wet reverb mix — amount 0..1 */
 export function setReverb(amount) {
   getCtx();
