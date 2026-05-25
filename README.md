@@ -28,21 +28,20 @@ Built with **Electron** and the **Web Audio API**. Audio is synthesised using a 
 ## Keyboard Layout
 
 ```
-  W  E     T  Y  U     O
- A  S  D  F  G  H  J  K  L
- C  C♯ D  E♭ E  F  F♯ G  A♭ A  B♭ B  | C  C♯ D
+   W   E       T   Y   U       O
+ A   S   D   F   G   H   J   K   L
 ```
 
 | Key | Note | | Key | Note |
 |-----|------|-|-----|------|
-| `A` | C  | | `G` | G  |
-| `W` | C♯ | | `Y` | G♯ |
-| `S` | D  | | `H` | A  |
-| `E` | E♭ | | `U` | B♭ |
-| `D` | E  | | `J` | B  |
-| `F` | F  | | `K` | C+1 |
-| `T` | F♯ | | `O` | C♯+1 |
-|     |    | | `L` | D+1 |
+| `A` | C    | | `G` | G    |
+| `W` | C♯   | | `Y` | G♯   |
+| `S` | D    | | `H` | A    |
+| `E` | E♭   | | `U` | B♭   |
+| `D` | E    | | `J` | B    |
+| `F` | F    | | `K` | C+1  |
+| `T` | F♯   | | `O` | C♯+1 |
+|     |      | | `L` | D+1  |
 
 ### Transport controls
 
