@@ -405,6 +405,10 @@
     .layout-btn + .layout-btn { border-left: 1px solid var(--border); }
 
     .vol-lbl { font-size: 0.44rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--t3); }
+    .zoom-display { display: flex; align-items: center; gap: 5px; }
+    .zoom-lbl { font-size: 0.42rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--t3); }
+    #zoom-value { font-size: 0.6rem; font-weight: 600; color: var(--accent); min-width: 2.2rem; text-align: center; }
+    .dock-sep { width: 1px; height: 16px; background: var(--bsub); margin: 0 4px; flex-shrink: 0; }
     input[type="range"] {
       -webkit-appearance: none; width: 76px; height: 2px;
       background: var(--s3); border-radius: 2px; outline: none; cursor: pointer;
@@ -453,14 +457,14 @@
       background: #0c0c10;
       transition: transform 0.22s cubic-bezier(0.4,0,0.2,1);
     }
-    .white-keys { display: flex; height: var(--wkh); width: 2900px; position: relative; z-index: 1; }
+    .white-keys { display: flex; height: var(--wkh); width: var(--piano-total-w, 2842px); position: relative; z-index: 1; }
 
     /* ── Keys ── */
     .key { cursor: pointer; }
     #piano-viewport.dragging .key,
     #piano-viewport-upper.dragging .key { cursor: grabbing; }
     .white-key {
-      flex-shrink: 0; width: 58px; height: var(--wkh);
+      flex-shrink: 0; width: var(--wkw, 58px); height: var(--wkh);
       background: linear-gradient(180deg, var(--ivory) 0%, var(--ivory-mid) 55%, var(--ivory-dim) 100%);
       border-left: 1px solid #b8b0a0; border-bottom: 2px solid #9a9080;
       border-radius: 0 0 5px 5px;
@@ -477,7 +481,7 @@
     }
 
     .black-key {
-      position: absolute; top: 0; width: 36px; height: calc(var(--wkh) * 0.61);
+      position: absolute; top: 0; width: var(--bkw, 36px); height: calc(var(--wkh) * 0.61);
       background: linear-gradient(180deg, #202026 0%, #161618 30%, #0e0e12 70%, #0a0a0e 100%);
       border-left: 1px solid #303038; border-right: 1px solid #282830;
       border-bottom: 2px solid #1a1a20; border-radius: 0 0 4px 4px;
@@ -895,6 +899,13 @@
       </div>
 
       <div class="dock-right">
+        <div class="zoom-display">
+          <span class="zoom-lbl">Keys</span>
+          <button class="oct-btn" id="btn-zoom-out" aria-label="Fewer keys">−</button>
+          <span id="zoom-value">3 oct</span>
+          <button class="oct-btn" id="btn-zoom-in" aria-label="More keys">+</button>
+        </div>
+        <div class="dock-sep"></div>
         <span class="vol-lbl">Vol</span>
         <input type="range" id="volume-slider" min="0" max="100" value="70" aria-label="Volume">
         <span id="volume-value">70%</span>

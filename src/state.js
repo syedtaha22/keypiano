@@ -52,6 +52,9 @@ export const state = {
   /* ── Keyboard mode ── */
   strictRows:     false,
   whiteKeyStart:  21,   // white key index where A starts in strict mode (21 = C4)
+
+  /* ── Key zoom (octaves visible in the piano viewport) ── */
+  visibleOctaves: 3,
 };
 
 /**

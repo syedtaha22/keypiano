@@ -46,6 +46,7 @@ export function buildPiano(targetId = 'piano') {
         bk.className   = 'key black-key';
         bk.dataset.oct = oct;
         bk.dataset.ni  = bni;
+        bk.dataset.wki = wIdx;
         bk.style.left  = `${wIdx * WKW - BKW / 2}px`;
         const bnm = document.createElement('span');
         bnm.className   = 'note-name';

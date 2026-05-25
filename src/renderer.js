@@ -7,7 +7,7 @@ import {
 import { shiftedNote } from './state.js';
 import { buildPiano } from './ui/piano-builder.js';
 import { initSustainStrip, setSustain } from './ui/sustain-strip.js';
-import { refreshOctaveUI, refreshUpperOctaveUI, updateViewport } from './ui/viewport.js';
+import { refreshOctaveUI, refreshUpperOctaveUI, updateViewport, applyKeyZoom } from './ui/viewport.js';
 import { pressNote, releaseNote } from './ui/interactions.js';
 import { schedulePlayback, pausePlayback, stopPlayback } from './audio/playback.js';
 import { parseMidi } from './parsers/midi.js';
@@ -125,6 +125,30 @@ document.getElementById('btn-down-upper').addEventListener('click', () => {
 });
 document.getElementById('btn-up-upper').addEventListener('click', () => {
   if (state.upperOctave < OCT_MAX) { state.upperOctave++; refreshUpperOctaveUI(); }
+});
+
+/* ── Key zoom (dock) ─────────────────────────────────────────────────── */
+
+function updateZoomLabel() {
+  const el = document.getElementById('zoom-value');
+  if (el) { el.textContent = `${state.visibleOctaves} oct`; }
+  document.getElementById('btn-zoom-out').disabled = (state.visibleOctaves <= 1);
+  document.getElementById('btn-zoom-in').disabled  = (state.visibleOctaves >= 7);
+}
+
+document.getElementById('btn-zoom-out').addEventListener('click', () => {
+  if (state.visibleOctaves > 1) {
+    state.visibleOctaves--;
+    updateZoomLabel();
+    applyKeyZoom(state.visibleOctaves);
+  }
+});
+document.getElementById('btn-zoom-in').addEventListener('click', () => {
+  if (state.visibleOctaves < 7) {
+    state.visibleOctaves++;
+    updateZoomLabel();
+    applyKeyZoom(state.visibleOctaves);
+  }
 });
 
 /* ── Volume slider (dock) ─────────────────────────────────────────────── */
@@ -854,6 +878,7 @@ initSustainStrip();
 setSustain(0);
 refreshOctaveUI();
 updateViewport();
+updateZoomLabel();
 setupDropdowns();
 setupKnobs();
 setupPianoDrag('piano-viewport', 'piano');
