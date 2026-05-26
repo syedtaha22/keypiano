@@ -16,11 +16,20 @@ Built with **Electron** and the **Web Audio API**. Audio is synthesised using a 
 
 - **Laptop keyboard → piano keys** — play instantly with A–L and W/E/T/Y/U/O
 - **Physical piano model** — four acoustic zones (bass / tenor / treble / hi-treble), detuned string oscillators, hammer noise burst
+- **Three keyboard modes** — Standard, Strict Rows (9 consecutive white keys), and Pro (three rows cover three octaves simultaneously)
 - **Sustain pedal** — vertical strip on the left; drag or press Space to toggle
-- **Octave shifting** — Z / X to step down / up; arrow keys for semitone shift
+- **Octave & semitone shifting** — `←`/`→` to shift octave; `↑`/`↓` for semitone fine-tune
+- **Key zoom** — adjust how many octaves are visible in the piano viewport (1–7)
+- **Dual dock** — split the piano into upper and lower keyboards, each with independent octave control
+- **Oscillator presets** — piano, bright, mellow, organ, and more; adjustable harmonic brightness
+- **Envelope controls** — per-note ADSR multipliers (attack, decay, sustain level, release)
+- **Effects & mix** — detune scale, reverb-style sustain, volume
+- **Waveform visualiser** — real-time oscilloscope or spectrum view
+- **Metronome** — built-in click track with configurable BPM and time signature
 - **MIDI + KPS file playback** — load any `.mid` or `.kps` file and play it back
+- **WAV export** — export a playback session as a `.wav` audio file
 - **Visual key highlighting** — on-screen keys light up during keyboard and playback input
-- **Volume control** — live slider, takes effect on next note
+- **Help popup** — `Ctrl+H` at any time shows the current keyboard layout with note names
 - **Fullscreen** — F11 or the corner button
 
 ---
@@ -47,10 +56,19 @@ Built with **Electron** and the **Web Audio API**. Audio is synthesised using a 
 
 | Key / Control | Action |
 |---|---|
-| `Z` / `X` | Octave down / up (resets semitone shift) |
-| `←` / `→` | Semitone shift −1 / +1 |
+| `←` / `→` | Octave down / up (resets semitone shift) |
+| `↑` / `↓` | Semitone fine-tune +1 / −1 |
 | `Space` | Toggle sustain pedal |
+| `Ctrl+H` | Show / hide keyboard layout popup |
 | `F11` | Toggle fullscreen |
+
+### Keyboard modes
+
+| Mode | How to activate | What changes |
+|---|---|---|
+| **Standard** | Default | A–L plays one octave; W/E/T/Y/U/O are black keys |
+| **Strict Rows** | Toggle in toolbar | A–L plays 9 consecutive white keys; W–O plays their black keys |
+| **Pro** | Toggle in toolbar | Q-row = Oct−1, A-row = Oct, Z-row = Oct+1; hold Shift for black keys |
 
 ---
 
@@ -81,10 +99,11 @@ Place `.kps` or `.mid` files in the `scores/` folder (gitignored). Click **Load 
 ```
 piano-app/
 ├── src/
-│   ├── constants.js           Layout constants and keyboard map
+│   ├── constants.js           Layout constants and keyboard maps
 │   ├── state.js               Shared mutable application state
 │   ├── audio/
 │   │   ├── context.js         AudioContext singleton + gain buses
+│   │   ├── metronome.js       Metronome click-track engine
 │   │   ├── piano-model.js     Zone definitions, oscillator synthesis
 │   │   └── playback.js        Pre-scheduled KPS/MIDI playback engine
 │   ├── parsers/
@@ -94,16 +113,17 @@ piano-app/
 │   │   ├── interactions.js    pressNote / releaseNote
 │   │   ├── piano-builder.js   Piano DOM construction
 │   │   ├── sustain-strip.js   Sustain strip drag interaction
-│   │   └── viewport.js        Octave highlights, labels, scroll
+│   │   └── viewport.js        Octave highlights, labels, scroll, zoom
 │   ├── renderer.js            Entry point — wires all modules together
-│   ├── main.js                Electron main process
+│   ├── main.cjs               Electron main process
 │   └── index.html             App shell
 ├── scores/                    Score files (.kps, .mid) — gitignored
 ├── docs/                      Project specifications — gitignored
+├── test/
+│   └── unit.test.js           Node built-in test runner unit tests
+├── smoke-test.js              Playwright end-to-end smoke test + screenshot
 ├── .eslintrc.json
 ├── .prettierrc
-├── CONTRIBUTING.md
-├── KNOWN_ISSUES.md
 ├── package.json
 └── README.md
 ```
@@ -136,12 +156,14 @@ KeyPiano Score is a simple JSON format for compositions:
 ## Development
 
 ```bash
-npm run lint         # ESLint check
-npm run lint:fix     # auto-fix
-npm run format       # Prettier
+npm run lint                              # ESLint check
+npm run lint:fix                          # auto-fix
+npm run format                            # Prettier
+npm test                                  # unit tests
+node --input-type=commonjs < smoke-test.js  # end-to-end smoke test + screenshot
 ```
 
-Architecture notes and contribution guidelines are in `CLAUDE.md`.
+Architecture notes are in `CLAUDE.md`.
 
 ---
 
@@ -149,7 +171,6 @@ Architecture notes and contribution guidelines are in `CLAUDE.md`.
 
 - BPM override field in transport bar
 - Note velocity (MIDI files embed per-note dynamics)
-- Reverb / room simulation
 - Piano roll visualiser
 - Recording to KPS
 
