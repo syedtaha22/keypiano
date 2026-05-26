@@ -74,6 +74,45 @@ export function whiteKeyAt(wkIdx) {
 }
 
 /**
+ * Pro-mode: three keyboard rows each cover one octave.
+ * Q-row = O−1, A-row = O, Z-row = O+1.
+ * ni = white-key note index; octOff = octave offset from currentOctave.
+ * Shift held on any key → the corresponding black key (see WHITE_TO_SHARP).
+ */
+export const PRO_MAP = {
+  // Q row — octave O−1
+  KeyQ: { ni: 0,  octOff: -1, label: 'Q' },
+  KeyW: { ni: 2,  octOff: -1, label: 'W' },
+  KeyE: { ni: 4,  octOff: -1, label: 'E' },
+  KeyR: { ni: 5,  octOff: -1, label: 'R' },
+  KeyT: { ni: 7,  octOff: -1, label: 'T' },
+  KeyY: { ni: 9,  octOff: -1, label: 'Y' },
+  KeyU: { ni: 11, octOff: -1, label: 'U' },
+  // A row — octave O
+  KeyA: { ni: 0,  octOff: 0, label: 'A' },
+  KeyS: { ni: 2,  octOff: 0, label: 'S' },
+  KeyD: { ni: 4,  octOff: 0, label: 'D' },
+  KeyF: { ni: 5,  octOff: 0, label: 'F' },
+  KeyG: { ni: 7,  octOff: 0, label: 'G' },
+  KeyH: { ni: 9,  octOff: 0, label: 'H' },
+  KeyJ: { ni: 11, octOff: 0, label: 'J' },
+  // Z row — octave O+1
+  KeyZ: { ni: 0,  octOff: 1, label: 'Z' },
+  KeyX: { ni: 2,  octOff: 1, label: 'X' },
+  KeyC: { ni: 4,  octOff: 1, label: 'C' },
+  KeyV: { ni: 5,  octOff: 1, label: 'V' },
+  KeyB: { ni: 7,  octOff: 1, label: 'B' },
+  KeyN: { ni: 9,  octOff: 1, label: 'N' },
+  KeyM: { ni: 11, octOff: 1, label: 'M' },
+};
+
+/**
+ * White-key ni → sharp (black-key) ni.
+ * Entries for E (4) and B (11) are absent — those positions have no black key.
+ */
+export const WHITE_TO_SHARP = { 0: 1, 2: 3, 5: 6, 7: 8, 9: 10 };
+
+/**
  * Given a whiteKeyStart index, return the 6 black keys for the top row.
  * Gaps (E–F, B–C) where no black key exists are returned as null.
  *

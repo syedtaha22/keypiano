@@ -533,6 +533,148 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
     }
+
+    /* ── Pro mode overlay & popup ──────────────────────────── */
+    #promode-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      cursor: pointer;
+    }
+    #promode-overlay.visible { display: flex; animation: pm-fadein 0.22s var(--ease); }
+    @keyframes pm-fadein { from { opacity: 0; } to { opacity: 1; } }
+    #promode-popup {
+      background: var(--s2); border: 1px solid var(--accent-dim);
+      border-radius: 12px; padding: 24px 28px 22px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.04);
+      max-width: 660px; width: calc(100vw - 40px);
+      cursor: default; animation: pm-slidein 0.22s var(--ease);
+    }
+    @keyframes pm-slidein {
+      from { transform: translateY(-14px) scale(0.97); opacity: 0; }
+      to   { transform: none; opacity: 1; }
+    }
+    .pm-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+    .pm-title-wrap { display: flex; flex-direction: column; gap: 5px; }
+    .pm-title { font-size: 0.52rem; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase; color: var(--accent); }
+    .pm-subtitle { font-size: 0.5rem; font-weight: 400; color: var(--t3); letter-spacing: 0.04em; }
+    .pm-close {
+      background: none; border: none; color: var(--t3); cursor: pointer;
+      width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+      border-radius: 4px; flex-shrink: 0; transition: color var(--tf), background var(--tf);
+    }
+    .pm-close:hover { color: var(--t1); background: var(--s3); }
+    /* Keyboard layout */
+    .pm-keyboard { display: flex; flex-direction: row; align-items: flex-end; gap: 12px; }
+    .pm-kb-rows  { display: flex; flex-direction: column; gap: 4px; }
+    .pm-kb-row   { display: flex; gap: 3px; align-items: stretch; }
+    .pm-kb-key   {
+      border-radius: 5px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: var(--fu); cursor: default; user-select: none;
+    }
+    .pm-key-meta {
+      height: 44px; background: var(--s4); border: 1px solid var(--bsub);
+      color: var(--t3); opacity: 0.4; font-size: 0.36rem; font-weight: 600;
+      letter-spacing: 0.06em; padding: 0 8px; white-space: nowrap;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.35);
+    }
+    .pm-key-tab  { width: 50px; }
+    .pm-key-caps { width: 60px; }
+    .pm-key-shft { width: 82px; font-size: 0.52rem; }
+    .pm-key-dim  {
+      width: 38px; height: 38px; background: var(--s3); border: 1px solid var(--border);
+      color: var(--t3); opacity: 0.25; font-size: 0.52rem; font-weight: 600;
+      box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+    }
+    .pm-key-active { width: 38px; height: 38px; box-shadow: 0 3px 0 rgba(0,0,0,0.55); }
+    .pmk-l { font-size: 0.62rem; font-weight: 700; line-height: 1; }
+    .pmk-n { font-size: 0.42rem; font-weight: 600; margin-top: 2px; line-height: 1; }
+    /* Q row — indigo (O−1) */
+    .pm-key-q { background: rgba(99,102,241,0.13); border: 1px solid rgba(99,102,241,0.42); }
+    .pm-key-q .pmk-l { color: #a5b4fc; }
+    .pm-key-q .pmk-n { color: rgba(165,180,252,0.6); }
+    /* A row — gold/accent (O centre) */
+    .pm-key-a { background: var(--accent-glow); border: 1px solid var(--accent-dim); }
+    .pm-key-a .pmk-l { color: var(--accent-br); }
+    .pm-key-a .pmk-n { color: var(--accent); }
+    /* Z row — teal (O+1) */
+    .pm-key-z { background: rgba(20,184,166,0.10); border: 1px solid rgba(20,184,166,0.36); }
+    .pm-key-z .pmk-l { color: #5eead4; }
+    .pm-key-z .pmk-n { color: rgba(94,234,212,0.6); }
+    /* Legend */
+    .pm-legend { display: flex; gap: 24px; margin: 18px 0 16px; justify-content: center; flex-wrap: wrap; }
+    .pm-legend-item { display: flex; align-items: center; gap: 7px; }
+    .pm-legend-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .pm-dot-q { background: #818cf8; }
+    .pm-dot-a { background: var(--accent); }
+    .pm-dot-z { background: #2dd4bf; }
+    .pm-legend-text { font-size: 0.5rem; font-weight: 500; color: var(--t3); white-space: nowrap; }
+    .pm-legend-text em { font-style: normal; color: var(--t2); font-weight: 600; }
+    /* Footer */
+    .pm-divider   { height: 1px; background: var(--bsub); margin: 0 0 13px; }
+    .pm-shift-hint { font-size: 0.48rem; color: var(--t3); text-align: center; margin-bottom: 10px; }
+    .pm-continue  { font-size: 0.44rem; color: var(--t3); text-align: center; opacity: 0.5; }
+    #promode-popup kbd {
+      background: var(--s3); border: 1px solid var(--border); border-radius: 3px;
+      padding: 1px 5px; font-family: var(--fu); font-size: 0.44rem; color: var(--t2);
+      box-shadow: 0 1px 0 var(--bsub);
+    }
+    /* Arrow key cluster — align-items:center keeps ↑ centred above ↓ */
+    .pm-arrows { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+    .pm-aw-top, .pm-aw-mid { display: flex; gap: 3px; }
+    .pm-ak-oct { background: rgba(59,130,246,0.10); border: 1px solid rgba(59,130,246,0.36); }
+    .pm-ak-oct .pmk-l { color: #93c5fd; }
+    .pm-ak-oct .pmk-n { color: rgba(147,197,253,0.65); }
+    .pm-ak-fn  { background: rgba(168,85,247,0.10); border: 1px solid rgba(168,85,247,0.32); }
+    .pm-ak-fn  .pmk-l { color: #d8b4fe; }
+    .pm-ak-fn  .pmk-n { color: rgba(216,180,254,0.65); }
+    /* Normal mode key colours */
+    .pm-key-note  { background: var(--accent-glow); border: 1px solid var(--accent-dim); }
+    .pm-key-note  .pmk-l { color: var(--accent-br); }
+    .pm-key-note  .pmk-n { color: var(--accent); }
+    .pm-key-note2 { background: var(--accent-glow); border: 1px solid var(--accent-dim); opacity: 0.45; }
+    .pm-key-note2 .pmk-l { color: var(--accent-br); }
+    .pm-key-note2 .pmk-n { color: var(--accent); }
+    .pm-key-ctrl  { background: rgba(59,130,246,0.10); border: 1px solid rgba(59,130,246,0.36); }
+    .pm-key-ctrl  .pmk-l { color: #93c5fd; }
+    .pm-key-ctrl  .pmk-n { color: rgba(147,197,253,0.65); }
+    .pm-dot-note  { background: var(--accent); }
+    .pm-dot-note2 { background: var(--accent); opacity: 0.45; }
+    .pm-dot-ctrl  { background: #60a5fa; }
+    /* Strict rows key colours — violet */
+    .pm-key-sv  { background: rgba(139,92,246,0.10); border: 1px solid rgba(139,92,246,0.38); }
+    .pm-key-sv  .pmk-l { color: #c4b5fd; }
+    .pm-key-sv  .pmk-n { color: rgba(196,181,253,0.70); }
+    .pm-key-sv2 { background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.24); }
+    .pm-key-sv2 .pmk-l { color: rgba(196,181,253,0.65); }
+    .pm-key-sv2 .pmk-n { color: rgba(196,181,253,0.45); }
+    .pm-dot-sv  { background: #a78bfa; }
+    .pm-dot-sv2 { background: #a78bfa; opacity: 0.45; }
+    /* Mode switching — all secondary panels/labels hidden by default */
+    #pm-normal, #pm-strict                         { display: none; }
+    .pm-title-normal,  .pm-title-strict            { display: none; }
+    .pm-subtitle-normal, .pm-subtitle-strict       { display: none; }
+    .pm-hint-normal, .pm-hint-strict               { display: none; }
+    /* Normal mode */
+    #promode-popup.mode-normal #pm-pro             { display: none; }
+    #promode-popup.mode-normal #pm-normal          { display: block; }
+    #promode-popup.mode-normal .pm-title-pro       { display: none; }
+    #promode-popup.mode-normal .pm-title-normal    { display: inline; }
+    #promode-popup.mode-normal .pm-subtitle-pro    { display: none; }
+    #promode-popup.mode-normal .pm-subtitle-normal { display: inline; }
+    #promode-popup.mode-normal .pm-hint-pro        { display: none; }
+    #promode-popup.mode-normal .pm-hint-normal     { display: block; }
+    /* Strict rows mode */
+    #promode-popup.mode-strict #pm-pro             { display: none; }
+    #promode-popup.mode-strict #pm-strict          { display: block; }
+    #promode-popup.mode-strict .pm-title-pro       { display: none; }
+    #promode-popup.mode-strict .pm-title-strict    { display: inline; }
+    #promode-popup.mode-strict .pm-subtitle-pro    { display: none; }
+    #promode-popup.mode-strict .pm-subtitle-strict { display: inline; }
+    #promode-popup.mode-strict .pm-hint-pro        { display: none; }
+    #promode-popup.mode-strict .pm-hint-strict     { display: block; }
   </style>
 </head>
 <body>
@@ -656,6 +798,10 @@
           <div class="dd-row">
             <span class="dd-lbl">Strict rows</span>
             <input type="checkbox" id="chk-strict-rows">
+          </div>
+          <div class="dd-row">
+            <span class="dd-lbl">Pro mode</span>
+            <input type="checkbox" id="chk-pro-mode">
           </div>
           <div class="dd-hr"></div>
           <div class="dd-row">
@@ -877,7 +1023,7 @@
   <div id="piano-dock">
     <div id="dock-toolbar">
       <div class="dock-left">
-        <span class="hint-badge">Z</span>
+        <span class="hint-badge">&larr;</span>
         <button class="oct-btn" id="btn-down" aria-label="Octave down">
           <svg width="7" height="9" viewBox="0 0 8 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,1 2,5 6,9"/></svg>
         </button>
@@ -888,7 +1034,7 @@
         <button class="oct-btn" id="btn-up" aria-label="Octave up">
           <svg width="7" height="9" viewBox="0 0 8 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,1 6,5 2,9"/></svg>
         </button>
-        <span class="hint-badge">X</span>
+        <span class="hint-badge">&rarr;</span>
       </div>
 
       <div class="dock-center">
@@ -947,6 +1093,245 @@
 
     </div><!-- #piano-layers -->
   </div><!-- #piano-dock -->
+
+  <!-- ══ Pro mode tutorial overlay ════════════════════════════ -->
+  <div id="promode-overlay">
+    <div id="promode-popup" role="dialog" aria-label="Pro mode keyboard layout" aria-modal="true">
+
+      <div class="pm-header">
+        <div class="pm-title-wrap">
+          <span class="pm-title pm-title-pro">Pro Mode</span>
+          <span class="pm-title pm-title-normal">Key Layout</span>
+          <span class="pm-title pm-title-strict">Strict Rows</span>
+          <span class="pm-subtitle pm-subtitle-pro">Three rows · three octaves · <kbd>Shift</kbd> for black keys</span>
+          <span class="pm-subtitle pm-subtitle-normal">Home row plays current octave · <kbd>&uarr;</kbd><kbd>&darr;</kbd> semitone</span>
+          <span class="pm-subtitle pm-subtitle-strict">9 consecutive keys · slides across the piano</span>
+        </div>
+        <button class="pm-close" id="pm-close" aria-label="Close">
+          <svg width="9" height="9" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <line x1="1" y1="1" x2="9" y2="9"/><line x1="9" y1="1" x2="1" y2="9"/>
+          </svg>
+        </button>
+      </div>
+
+      <div id="pm-pro">
+        <div class="pm-keyboard">
+          <div class="pm-kb-rows">
+            <!-- Q row — octave O−1 -->
+            <div class="pm-kb-row">
+              <div class="pm-kb-key pm-key-meta pm-key-tab">Tab</div>
+              <div class="pm-kb-key pm-key-active pm-key-q"><span class="pmk-l">Q</span><span class="pmk-n">C</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-q"><span class="pmk-l">W</span><span class="pmk-n">D</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-q"><span class="pmk-l">E</span><span class="pmk-n">E</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-q"><span class="pmk-l">R</span><span class="pmk-n">F</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-q"><span class="pmk-l">T</span><span class="pmk-n">G</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-q"><span class="pmk-l">Y</span><span class="pmk-n">A</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-q"><span class="pmk-l">U</span><span class="pmk-n">B</span></div>
+              <div class="pm-kb-key pm-key-dim">I</div>
+              <div class="pm-kb-key pm-key-dim">O</div>
+              <div class="pm-kb-key pm-key-dim">P</div>
+            </div>
+            <!-- A row — octave O (centre) -->
+            <div class="pm-kb-row">
+              <div class="pm-kb-key pm-key-meta pm-key-caps">Caps</div>
+              <div class="pm-kb-key pm-key-active pm-key-a"><span class="pmk-l">A</span><span class="pmk-n">C</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-a"><span class="pmk-l">S</span><span class="pmk-n">D</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-a"><span class="pmk-l">D</span><span class="pmk-n">E</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-a"><span class="pmk-l">F</span><span class="pmk-n">F</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-a"><span class="pmk-l">G</span><span class="pmk-n">G</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-a"><span class="pmk-l">H</span><span class="pmk-n">A</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-a"><span class="pmk-l">J</span><span class="pmk-n">B</span></div>
+              <div class="pm-kb-key pm-key-dim">K</div>
+              <div class="pm-kb-key pm-key-dim">L</div>
+            </div>
+            <!-- Z row — octave O+1 -->
+            <div class="pm-kb-row">
+              <div class="pm-kb-key pm-key-meta pm-key-shft">⇧</div>
+              <div class="pm-kb-key pm-key-active pm-key-z"><span class="pmk-l">Z</span><span class="pmk-n">C</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-z"><span class="pmk-l">X</span><span class="pmk-n">D</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-z"><span class="pmk-l">C</span><span class="pmk-n">E</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-z"><span class="pmk-l">V</span><span class="pmk-n">F</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-z"><span class="pmk-l">B</span><span class="pmk-n">G</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-z"><span class="pmk-l">N</span><span class="pmk-n">A</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-z"><span class="pmk-l">M</span><span class="pmk-n">B</span></div>
+              <div class="pm-kb-key pm-key-dim">,</div>
+              <div class="pm-kb-key pm-key-dim">.</div>
+            </div>
+          </div>
+          <div class="pm-arrows">
+            <div class="pm-aw-top">
+              <div class="pm-kb-key pm-key-dim"><span class="pmk-l">&uarr;</span></div>
+            </div>
+            <div class="pm-aw-mid">
+              <div class="pm-kb-key pm-key-active pm-ak-oct"><span class="pmk-l">&larr;</span><span class="pmk-n">oct&darr;</span></div>
+              <div class="pm-kb-key pm-key-dim"><span class="pmk-l">&darr;</span></div>
+              <div class="pm-kb-key pm-key-active pm-ak-oct"><span class="pmk-l">&rarr;</span><span class="pmk-n">oct&uarr;</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pm-legend">
+          <div class="pm-legend-item">
+            <span class="pm-legend-dot pm-dot-q"></span>
+            <span class="pm-legend-text" id="pm-oct-q">Octave <em>3</em></span>
+          </div>
+          <div class="pm-legend-item">
+            <span class="pm-legend-dot pm-dot-a"></span>
+            <span class="pm-legend-text" id="pm-oct-a">Octave <em>4</em> — centre</span>
+          </div>
+          <div class="pm-legend-item">
+            <span class="pm-legend-dot pm-dot-z"></span>
+            <span class="pm-legend-text" id="pm-oct-z">Octave <em>5</em></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="pm-normal">
+        <div class="pm-keyboard">
+          <div class="pm-kb-rows">
+            <!-- Top row — black-key notes (W E T Y U) + oct+1 black (O) -->
+            <div class="pm-kb-row">
+              <div class="pm-kb-key pm-key-meta pm-key-tab">Tab</div>
+              <div class="pm-kb-key pm-key-dim">Q</div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyW"><span class="pmk-l">W</span><span class="pmk-n">C♯</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyE"><span class="pmk-l">E</span><span class="pmk-n">E♭</span></div>
+              <div class="pm-kb-key pm-key-dim">R</div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyT"><span class="pmk-l">T</span><span class="pmk-n">F♯</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyY"><span class="pmk-l">Y</span><span class="pmk-n">A♭</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyU"><span class="pmk-l">U</span><span class="pmk-n">B♭</span></div>
+              <div class="pm-kb-key pm-key-dim">I</div>
+              <div class="pm-kb-key pm-key-active pm-key-note2" data-code="KeyO"><span class="pmk-l">O</span><span class="pmk-n">C♯</span></div>
+              <div class="pm-kb-key pm-key-dim">P</div>
+            </div>
+            <!-- Home row — white-key notes A–J + oct+1 K L -->
+            <div class="pm-kb-row">
+              <div class="pm-kb-key pm-key-meta pm-key-caps">Caps</div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyA"><span class="pmk-l">A</span><span class="pmk-n">C</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyS"><span class="pmk-l">S</span><span class="pmk-n">D</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyD"><span class="pmk-l">D</span><span class="pmk-n">E</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyF"><span class="pmk-l">F</span><span class="pmk-n">F</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyG"><span class="pmk-l">G</span><span class="pmk-n">G</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyH"><span class="pmk-l">H</span><span class="pmk-n">A</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note" data-code="KeyJ"><span class="pmk-l">J</span><span class="pmk-n">B</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note2" data-code="KeyK"><span class="pmk-l">K</span><span class="pmk-n">C</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-note2" data-code="KeyL"><span class="pmk-l">L</span><span class="pmk-n">D</span></div>
+            </div>
+            <!-- Bottom row — all unused in standard mode -->
+            <div class="pm-kb-row">
+              <div class="pm-kb-key pm-key-meta pm-key-shft">⇧</div>
+              <div class="pm-kb-key pm-key-dim">Z</div>
+              <div class="pm-kb-key pm-key-dim">X</div>
+              <div class="pm-kb-key pm-key-dim">C</div>
+              <div class="pm-kb-key pm-key-dim">V</div>
+              <div class="pm-kb-key pm-key-dim">B</div>
+              <div class="pm-kb-key pm-key-dim">N</div>
+              <div class="pm-kb-key pm-key-dim">M</div>
+            </div>
+          </div>
+          <div class="pm-arrows">
+            <div class="pm-aw-top">
+              <div class="pm-kb-key pm-key-active pm-ak-fn"><span class="pmk-l">&uarr;</span><span class="pmk-n">+semi</span></div>
+            </div>
+            <div class="pm-aw-mid">
+              <div class="pm-kb-key pm-key-active pm-ak-oct"><span class="pmk-l">&larr;</span><span class="pmk-n">oct&darr;</span></div>
+              <div class="pm-kb-key pm-key-active pm-ak-fn"><span class="pmk-l">&darr;</span><span class="pmk-n">&minus;semi</span></div>
+              <div class="pm-kb-key pm-key-active pm-ak-oct"><span class="pmk-l">&rarr;</span><span class="pmk-n">oct&uarr;</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pm-legend">
+          <div class="pm-legend-item">
+            <span class="pm-legend-dot pm-dot-note"></span>
+            <span class="pm-legend-text" id="pm-oct-normal">Octave <em>4</em></span>
+          </div>
+          <div class="pm-legend-item">
+            <span class="pm-legend-dot pm-dot-note2"></span>
+            <span class="pm-legend-text" id="pm-oct-normal-plus">Octave <em>5</em></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="pm-strict">
+        <div class="pm-keyboard">
+          <div class="pm-kb-rows">
+            <!-- Top row — black keys for strict mode (W E T Y U O) -->
+            <div class="pm-kb-row">
+              <div class="pm-kb-key pm-key-meta pm-key-tab">Tab</div>
+              <div class="pm-kb-key pm-key-dim">Q</div>
+              <div class="pm-kb-key pm-key-active pm-key-sv2" data-strict-tidx="0"><span class="pmk-l">W</span><span class="pmk-n">C♯</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv2" data-strict-tidx="1"><span class="pmk-l">E</span><span class="pmk-n">D♯</span></div>
+              <div class="pm-kb-key pm-key-dim">R</div>
+              <div class="pm-kb-key pm-key-active pm-key-sv2" data-strict-tidx="2"><span class="pmk-l">T</span><span class="pmk-n">F♯</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv2" data-strict-tidx="3"><span class="pmk-l">Y</span><span class="pmk-n">G♯</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv2" data-strict-tidx="4"><span class="pmk-l">U</span><span class="pmk-n">A♯</span></div>
+              <div class="pm-kb-key pm-key-dim">I</div>
+              <div class="pm-kb-key pm-key-active pm-key-sv2" data-strict-tidx="5"><span class="pmk-l">O</span><span class="pmk-n">C♯</span></div>
+              <div class="pm-kb-key pm-key-dim">P</div>
+            </div>
+            <!-- Home row — 9 consecutive white keys (A–L) -->
+            <div class="pm-kb-row">
+              <div class="pm-kb-key pm-key-meta pm-key-caps">Caps</div>
+              <div class="pm-kb-key pm-key-active pm-key-sv" data-strict-bidx="0"><span class="pmk-l">A</span><span class="pmk-n">C</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv" data-strict-bidx="1"><span class="pmk-l">S</span><span class="pmk-n">D</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv" data-strict-bidx="2"><span class="pmk-l">D</span><span class="pmk-n">E</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv" data-strict-bidx="3"><span class="pmk-l">F</span><span class="pmk-n">F</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv" data-strict-bidx="4"><span class="pmk-l">G</span><span class="pmk-n">G</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv" data-strict-bidx="5"><span class="pmk-l">H</span><span class="pmk-n">A</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv" data-strict-bidx="6"><span class="pmk-l">J</span><span class="pmk-n">B</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv" data-strict-bidx="7"><span class="pmk-l">K</span><span class="pmk-n">C</span></div>
+              <div class="pm-kb-key pm-key-active pm-key-sv" data-strict-bidx="8"><span class="pmk-l">L</span><span class="pmk-n">D</span></div>
+            </div>
+            <!-- Bottom row — all dim (no note keys in strict mode) -->
+            <div class="pm-kb-row">
+              <div class="pm-kb-key pm-key-meta pm-key-shft">⇧</div>
+              <div class="pm-kb-key pm-key-dim">Z</div>
+              <div class="pm-kb-key pm-key-dim">X</div>
+              <div class="pm-kb-key pm-key-dim">C</div>
+              <div class="pm-kb-key pm-key-dim">V</div>
+              <div class="pm-kb-key pm-key-dim">B</div>
+              <div class="pm-kb-key pm-key-dim">N</div>
+              <div class="pm-kb-key pm-key-dim">M</div>
+            </div>
+          </div>
+          <div class="pm-arrows">
+            <div class="pm-aw-top">
+              <div class="pm-kb-key pm-key-active pm-ak-fn"><span class="pmk-l">&uarr;</span><span class="pmk-n">+1 key</span></div>
+            </div>
+            <div class="pm-aw-mid">
+              <div class="pm-kb-key pm-key-active pm-ak-oct"><span class="pmk-l">&larr;</span><span class="pmk-n">oct&darr;</span></div>
+              <div class="pm-kb-key pm-key-active pm-ak-fn"><span class="pmk-l">&darr;</span><span class="pmk-n">&minus;1 key</span></div>
+              <div class="pm-kb-key pm-key-active pm-ak-oct"><span class="pmk-l">&rarr;</span><span class="pmk-n">oct&uarr;</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pm-legend">
+          <div class="pm-legend-item">
+            <span class="pm-legend-dot pm-dot-sv"></span>
+            <span class="pm-legend-text">A–L: 9 consecutive white keys</span>
+          </div>
+          <div class="pm-legend-item">
+            <span class="pm-legend-dot pm-dot-sv2"></span>
+            <span class="pm-legend-text">W–O: black keys between them</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-divider"></div>
+      <div class="pm-shift-hint pm-hint-pro">
+        Hold <kbd>Shift</kbd> + highlighted key &rarr; plays the black key (♯) &nbsp;·&nbsp; <kbd>&larr;</kbd><kbd>&rarr;</kbd> shifts all octaves
+      </div>
+      <div class="pm-shift-hint pm-hint-normal">
+        <kbd>&uarr;</kbd><kbd>&darr;</kbd> shift semitone &nbsp;·&nbsp; <kbd>&larr;</kbd><kbd>&rarr;</kbd> shift octave
+      </div>
+      <div class="pm-shift-hint pm-hint-strict">
+        <kbd>&larr;</kbd><kbd>&rarr;</kbd> jump one octave &nbsp;·&nbsp; <kbd>&uarr;</kbd><kbd>&darr;</kbd> move one key
+      </div>
+      <div class="pm-continue">Press any key or click outside · <kbd>Ctrl</kbd><kbd>H</kbd> to reopen</div>
+
+    </div>
+  </div>
 
 </div><!-- #app -->
 <script type="module" src="renderer.js"></script>

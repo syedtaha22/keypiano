@@ -1,6 +1,6 @@
 import {
   WKW, BKW, OCT_MIN, OCT_MAX, NI_TO_WHITE_POS, CODE_MAP,
-  BOTTOM_ROW_CODES, TOP_ROW_CODES,
+  BOTTOM_ROW_CODES, TOP_ROW_CODES, PRO_MAP,
   whiteKeyAt, getStrictTopRow,
 } from '../constants.js';
 import { state, shiftedNote } from '../state.js';
@@ -14,6 +14,33 @@ let liveBKW = BKW;
 export function refreshOctaveUI() {
   document.querySelectorAll('#piano .key').forEach(k => k.classList.remove('octave-active'));
   document.querySelectorAll('#piano .key-label').forEach(l => { l.textContent = ''; });
+
+  if (state.proMode) {
+    document.getElementById('octave-value').textContent = state.currentOctave;
+    document.getElementById('btn-down').disabled = (state.currentOctave <= OCT_MIN + 1);
+    document.getElementById('btn-up').disabled   = (state.currentOctave >= OCT_MAX - 1);
+
+    for (let off = -1; off <= 1; off++) {
+      const oct = state.currentOctave + off;
+      if (oct < OCT_MIN || oct > OCT_MAX) { continue; }
+      document.querySelectorAll(`#piano .key[data-oct="${oct}"]`).forEach(k => {
+        k.classList.add('octave-active');
+      });
+    }
+    Object.keys(PRO_MAP).forEach(code => {
+      const def = PRO_MAP[code];
+      const oct = state.currentOctave + def.octOff;
+      if (oct < OCT_MIN || oct > OCT_MAX) { return; }
+      document.querySelectorAll(`#piano .key[data-oct="${oct}"][data-ni="${def.ni}"]`)
+        .forEach(k => {
+          const label = k.querySelector('.key-label');
+          if (label) { label.textContent = def.label; }
+        });
+    });
+
+    scrollToActiveRange();
+    return;
+  }
 
   if (state.strictRows) {
     const wks = state.whiteKeyStart;
@@ -98,7 +125,10 @@ export function scrollToActiveRange() {
   const totalW = 49 * liveWKW;
 
   let gIdx;
-  if (state.strictRows) {
+  if (state.proMode) {
+    const oct = Math.max(OCT_MIN + 1, Math.min(OCT_MAX - 1, state.currentOctave));
+    gIdx = (oct - 1 - OCT_MIN) * 7; // start of O-1 octave so all 3 rows are in view
+  } else if (state.strictRows) {
     gIdx = state.whiteKeyStart;
   } else {
     const aInfo = shiftedNote(CODE_MAP['KeyA']);

@@ -129,11 +129,14 @@ var currentScore  = null;        // loaded {title, tempo, notes[]}
 ```
 A W S E D F T G Y H U J  →  C C♯ D E♭ E F F♯ G A♭ A B♭ B  (current octave)
 K O L                    →  C C♯ D  (current octave + 1)
-Z / X                    →  octave down / up (resets noteShift)
-← / →                    →  semitone shift (noteShift -1 / +1)
+← / →                    →  octave down / up  (resets noteShift; in pro mode shifts octave; in strict rows jumps 7 keys)
+↑ / ↓                    →  semitone shift (noteShift +1 / -1; in strict rows moves 1 key; no-op in pro mode)
 Space                    →  sustain pedal toggle
+Ctrl+H                   →  show / hide key layout popup
 F11                      →  fullscreen
 ```
+
+Note: Z and X are no longer bound to octave shifts. In **pro mode** they play note C and D at octave O+1.
 
 ---
 

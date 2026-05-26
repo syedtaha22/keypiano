@@ -2,6 +2,7 @@ import { state } from './state.js';
 import {
   CODE_MAP, OCT_MIN, OCT_MAX, WKW, NI_TO_WHITE_POS,
   BOTTOM_ROW_CODES, TOP_ROW_CODES, MAX_WK_START,
+  PRO_MAP, WHITE_TO_SHARP, NOTE_NAMES,
   whiteKeyAt, getStrictTopRow,
 } from './constants.js';
 import { shiftedNote } from './state.js';
@@ -21,21 +22,54 @@ import { startMetronome, stopMetronome } from './audio/metronome.js';
 document.addEventListener('keydown', e => {
   if (e.repeat) { return; }
 
+  if (e.ctrlKey && e.code === 'KeyH') {
+    e.preventDefault();
+    const overlay = document.getElementById('promode-overlay');
+    if (overlay && overlay.classList.contains('visible')) {
+      hideKeyLayoutPopup();
+    } else {
+      showKeyLayoutPopup();
+    }
+    return;
+  }
+
   if (e.code === 'ArrowLeft') {
     e.preventDefault();
-    if (state.strictRows) {
-      if (state.whiteKeyStart > 0) { state.whiteKeyStart--; refreshOctaveUI(); }
+    if (state.proMode) {
+      if (state.currentOctave > OCT_MIN + 1) { state.currentOctave--; refreshOctaveUI(); }
+    } else if (state.strictRows) {
+      if (state.whiteKeyStart >= 7) { state.whiteKeyStart -= 7; refreshOctaveUI(); }
     } else {
-      state.noteShift--; refreshOctaveUI();
+      if (state.currentOctave > OCT_MIN) { state.currentOctave--; state.noteShift = 0; refreshOctaveUI(); }
     }
     return;
   }
   if (e.code === 'ArrowRight') {
     e.preventDefault();
+    if (state.proMode) {
+      if (state.currentOctave < OCT_MAX - 1) { state.currentOctave++; refreshOctaveUI(); }
+    } else if (state.strictRows) {
+      if (state.whiteKeyStart + 7 <= MAX_WK_START) { state.whiteKeyStart += 7; refreshOctaveUI(); }
+    } else {
+      if (state.currentOctave < OCT_MAX) { state.currentOctave++; state.noteShift = 0; refreshOctaveUI(); }
+    }
+    return;
+  }
+  if (e.code === 'ArrowUp') {
+    e.preventDefault();
     if (state.strictRows) {
       if (state.whiteKeyStart < MAX_WK_START) { state.whiteKeyStart++; refreshOctaveUI(); }
-    } else {
+    } else if (!state.proMode) {
       state.noteShift++; refreshOctaveUI();
+    }
+    return;
+  }
+  if (e.code === 'ArrowDown') {
+    e.preventDefault();
+    if (state.strictRows) {
+      if (state.whiteKeyStart > 0) { state.whiteKeyStart--; refreshOctaveUI(); }
+    } else if (!state.proMode) {
+      state.noteShift--; refreshOctaveUI();
     }
     return;
   }
@@ -51,24 +85,25 @@ document.addEventListener('keydown', e => {
     return;
   }
 
-  if (e.code === 'KeyZ') {
-    if (state.strictRows) {
-      if (state.whiteKeyStart >= 7) { state.whiteKeyStart -= 7; refreshOctaveUI(); }
-    } else {
-      if (state.currentOctave > OCT_MIN) { state.currentOctave--; state.noteShift = 0; refreshOctaveUI(); }
-    }
-    return;
-  }
-  if (e.code === 'KeyX') {
-    if (state.strictRows) {
-      if (state.whiteKeyStart + 7 <= MAX_WK_START) { state.whiteKeyStart += 7; refreshOctaveUI(); }
-    } else {
-      if (state.currentOctave < OCT_MAX) { state.currentOctave++; state.noteShift = 0; refreshOctaveUI(); }
-    }
-    return;
-  }
   if (e.code === 'F11') { e.preventDefault(); toggleFullscreen(); return; }
 
+  // ── Pro-mode note input ──────────────────────────────────────────────
+  if (state.proMode) {
+    const def = PRO_MAP[e.code];
+    if (!def || state.heldCodes.has(e.code)) { return; }
+    let ni = def.ni;
+    if (e.shiftKey) {
+      const sharp = WHITE_TO_SHARP[ni];
+      if (sharp === undefined) { return; } // E or B position — no black key
+      ni = sharp;
+    }
+    state.heldCodes.add(e.code);
+    const oct = state.currentOctave + def.octOff;
+    pressNote(ni, oct, `kbd_${e.code}`);
+    return;
+  }
+
+  // ── Normal / strict-rows note input ─────────────────────────────────
   if (!CODE_MAP[e.code] || state.heldCodes.has(e.code)) { return; }
   state.heldCodes.add(e.code);
 
@@ -89,6 +124,12 @@ document.addEventListener('keydown', e => {
 });
 
 document.addEventListener('keyup', e => {
+  if (state.proMode) {
+    if (!PRO_MAP[e.code]) { return; }
+    state.heldCodes.delete(e.code);
+    releaseNote(`kbd_${e.code}`);
+    return;
+  }
   if (!CODE_MAP[e.code]) { return; }
   state.heldCodes.delete(e.code);
   releaseNote(`kbd_${e.code}`);
@@ -104,14 +145,18 @@ window.addEventListener('blur', () => {
 /* ── Octave controls (lower) ──────────────────────────────────────────── */
 
 document.getElementById('btn-down').addEventListener('click', () => {
-  if (state.strictRows) {
+  if (state.proMode) {
+    if (state.currentOctave > OCT_MIN + 1) { state.currentOctave--; refreshOctaveUI(); }
+  } else if (state.strictRows) {
     if (state.whiteKeyStart >= 7) { state.whiteKeyStart -= 7; refreshOctaveUI(); }
   } else {
     if (state.currentOctave > OCT_MIN) { state.currentOctave--; state.noteShift = 0; refreshOctaveUI(); }
   }
 });
 document.getElementById('btn-up').addEventListener('click', () => {
-  if (state.strictRows) {
+  if (state.proMode) {
+    if (state.currentOctave < OCT_MAX - 1) { state.currentOctave++; refreshOctaveUI(); }
+  } else if (state.strictRows) {
     if (state.whiteKeyStart + 7 <= MAX_WK_START) { state.whiteKeyStart += 7; refreshOctaveUI(); }
   } else {
     if (state.currentOctave < OCT_MAX) { state.currentOctave++; state.noteShift = 0; refreshOctaveUI(); }
@@ -263,14 +308,103 @@ document.getElementById('chk-key-hints').addEventListener('change', function () 
 document.getElementById('chk-strict-rows').addEventListener('change', function () {
   state.strictRows = this.checked;
   if (this.checked) {
-    // Snap whiteKeyStart to the nearest white key where A currently lands
+    state.proMode = false;
+    document.getElementById('chk-pro-mode').checked = false;
     const aNote  = shiftedNote(CODE_MAP['KeyA']);
     const oct    = Math.max(OCT_MIN, Math.min(OCT_MAX, aNote.oct));
     const wkPos  = NI_TO_WHITE_POS[aNote.ni];
     state.whiteKeyStart = Math.max(0, Math.min(MAX_WK_START, (oct - OCT_MIN) * 7 + wkPos));
+    showKeyLayoutPopup();
+  } else {
+    hideKeyLayoutPopup();
   }
   refreshOctaveUI();
 });
+
+/* ── Pro mode ─────────────────────────────────────────────────────────── */
+
+let pmKeyDismiss = null;
+
+function showKeyLayoutPopup() {
+  const overlay = document.getElementById('promode-overlay');
+  if (!overlay) { return; }
+  const popup = document.getElementById('promode-popup');
+
+  popup.classList.remove('mode-normal', 'mode-strict');
+  if (!state.proMode) {
+    popup.classList.add(state.strictRows ? 'mode-strict' : 'mode-normal');
+  }
+
+  overlay.classList.add('visible');
+  syncPopupLabels(); // populate all labels from current state
+
+  if (pmKeyDismiss) { document.removeEventListener('keydown', pmKeyDismiss); }
+  pmKeyDismiss = (e) => {
+    if (e.ctrlKey && e.code === 'KeyH') { return; }
+    if (['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab'].includes(e.key)) { return; }
+    hideKeyLayoutPopup();
+  };
+  document.addEventListener('keydown', pmKeyDismiss);
+}
+
+function hideKeyLayoutPopup() {
+  const overlay = document.getElementById('promode-overlay');
+  if (overlay) { overlay.classList.remove('visible'); }
+  if (pmKeyDismiss) { document.removeEventListener('keydown', pmKeyDismiss); pmKeyDismiss = null; }
+}
+
+function syncPopupLabels() {
+  const overlay = document.getElementById('promode-overlay');
+  if (!overlay || !overlay.classList.contains('visible')) { return; }
+  const o = state.currentOctave;
+  if (state.proMode) {
+    document.getElementById('pm-oct-q').innerHTML = `Octave <em>${o - 1}</em>`;
+    document.getElementById('pm-oct-a').innerHTML = `Octave <em>${o}</em> — centre`;
+    document.getElementById('pm-oct-z').innerHTML = `Octave <em>${o + 1}</em>`;
+  } else if (state.strictRows) {
+    const wks = state.whiteKeyStart;
+    document.querySelectorAll('#pm-strict [data-strict-bidx]').forEach(el => {
+      const { ni } = whiteKeyAt(wks + parseInt(el.dataset.strictBidx));
+      const noteEl = el.querySelector('.pmk-n');
+      if (noteEl) { noteEl.textContent = NOTE_NAMES[ni]; }
+    });
+    const topRow = getStrictTopRow(wks);
+    document.querySelectorAll('#pm-strict [data-strict-tidx]').forEach(el => {
+      const info = topRow[parseInt(el.dataset.strictTidx)];
+      const noteEl = el.querySelector('.pmk-n');
+      if (noteEl) { noteEl.textContent = info ? NOTE_NAMES[info.ni] : '—'; }
+      el.style.opacity = info ? '' : '0.15';
+    });
+  } else {
+    const baseOct = shiftedNote(CODE_MAP['KeyA']).oct;
+    document.getElementById('pm-oct-normal').innerHTML = `Octave <em>${baseOct}</em>`;
+    document.getElementById('pm-oct-normal-plus').innerHTML = `Octave <em>${baseOct + 1}</em>`;
+    document.querySelectorAll('#pm-normal .pm-kb-key[data-code]').forEach(el => {
+      const def = CODE_MAP[el.dataset.code];
+      if (!def) { return; }
+      const noteEl = el.querySelector('.pmk-n');
+      if (noteEl) { noteEl.textContent = NOTE_NAMES[shiftedNote(def).ni]; }
+    });
+  }
+}
+
+
+document.getElementById('chk-pro-mode').addEventListener('change', function () {
+  state.proMode = this.checked;
+  if (this.checked) {
+    state.strictRows = false;
+    document.getElementById('chk-strict-rows').checked = false;
+    state.currentOctave = Math.max(OCT_MIN + 1, Math.min(OCT_MAX - 1, state.currentOctave));
+    showKeyLayoutPopup();
+  } else {
+    hideKeyLayoutPopup();
+  }
+  refreshOctaveUI();
+});
+
+document.getElementById('pm-close').addEventListener('click', hideKeyLayoutPopup);
+document.getElementById('promode-overlay').addEventListener('click', hideKeyLayoutPopup);
+document.getElementById('promode-popup').addEventListener('click', e => e.stopPropagation());
 
 /* ── Metronome ────────────────────────────────────────────────────────── */
 
@@ -760,7 +894,7 @@ function encodeWAV(channels, sampleRate) {
   const dataSize       = numFrames * blockAlign;
   const buf  = new ArrayBuffer(44 + dataSize);
   const view = new DataView(buf);
-  const str  = (s, o) => { for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i)); };
+  const str  = (s, o) => { for (let i = 0; i < s.length; i++) { view.setUint8(o + i, s.charCodeAt(i)); } };
 
   str('RIFF', 0);  view.setUint32(4,  36 + dataSize, true);
   str('WAVE', 8);
