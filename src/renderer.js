@@ -388,7 +388,6 @@ function syncPopupLabels() {
   }
 }
 
-
 document.getElementById('chk-pro-mode').addEventListener('change', function () {
   state.proMode = this.checked;
   if (this.checked) {

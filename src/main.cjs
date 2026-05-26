@@ -30,9 +30,7 @@ app.whenReady().then(() => {
   });
 
   if (app.isPackaged) {
-    autoUpdater.checkForUpdatesAndNotify().catch(err => {
-      console.error('[updater]', err.message);
-    });
+    autoUpdater.checkForUpdatesAndNotify().catch(() => {});
   }
 });
 
