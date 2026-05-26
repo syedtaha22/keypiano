@@ -1,6 +1,6 @@
 {
   "name": "keypiano",
-  "version": "1.2.0",
+  "version": "1.0.0",
   "description": "Laptop keyboard piano with a physically-modelled grand piano synthesiser",
   "main": "src/main.cjs",
   "type": "module",
