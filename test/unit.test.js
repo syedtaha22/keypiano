@@ -165,7 +165,7 @@ describe('parseMidi', () => {
 
     const score = parseMidi(bytes.buffer);
     assert.ok(score !== null, 'should not return null');
-    assert.equal(score.tempo, 120);
+    assert.equal(score.tempo, 60); // parser normalises to 60 — times are pre-converted to seconds
     assert.equal(score.notes.length, 1);
     assert.equal(score.notes[0].note, 'C4');
     assert.equal(score.notes[0].time, 0);
