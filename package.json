@@ -2,6 +2,7 @@
   "name": "keypiano",
   "version": "1.0.0",
   "description": "Laptop keyboard piano with a physically-modelled grand piano synthesiser",
+  "author": "Syed Taha",
   "main": "src/main.cjs",
   "type": "module",
   "repository": {
@@ -72,11 +73,10 @@
       ],
       "category": "Audio"
     },
+    "icon": "assets/icon.png",
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "installerIcon": "assets/icon.ico",
-      "uninstallerIcon": "assets/icon.ico"
+      "allowToChangeInstallationDirectory": true
     },
     "publish": {
       "provider": "github",

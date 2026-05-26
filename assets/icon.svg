@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <clipPath id="app-clip">
+      <rect width="256" height="256" rx="56" ry="56"/>
+    </clipPath>
+  </defs>
+
+  <!-- App icon background -->
+  <rect width="256" height="256" rx="56" ry="56" fill="#13131a"/>
+
+  <!-- Subtle inner border -->
+  <rect width="256" height="256" rx="56" ry="56"
+        fill="none" stroke="#2c2c3a" stroke-width="2"/>
+
+  <!-- Piano body -->
+  <rect x="16" y="60" width="224" height="140" rx="10" ry="10"
+        fill="#0e0e12" clip-path="url(#app-clip)"/>
+
+  <!-- Gold accent bar — top of piano -->
+  <rect x="16" y="60" width="224" height="5" rx="2" ry="2" fill="#d4aa3a"/>
+
+  <!-- White keys (7 keys) -->
+  <rect x="18"  y="66" width="28" height="124" rx="4" ry="4" fill="#e8e4db"/>
+  <rect x="49"  y="66" width="28" height="124" rx="4" ry="4" fill="#e8e4db"/>
+  <rect x="80"  y="66" width="28" height="124" rx="4" ry="4" fill="#e8e4db"/>
+  <rect x="111" y="66" width="28" height="124" rx="4" ry="4" fill="#e8e4db"/>
+  <rect x="142" y="66" width="28" height="124" rx="4" ry="4" fill="#e8e4db"/>
+  <rect x="173" y="66" width="28" height="124" rx="4" ry="4" fill="#e8e4db"/>
+  <rect x="204" y="66" width="28" height="124" rx="4" ry="4" fill="#e8e4db"/>
+
+  <!-- Key separators -->
+  <rect x="48"  y="66" width="1" height="124" fill="#09090b" opacity="0.35"/>
+  <rect x="79"  y="66" width="1" height="124" fill="#09090b" opacity="0.35"/>
+  <rect x="110" y="66" width="1" height="124" fill="#09090b" opacity="0.35"/>
+  <rect x="141" y="66" width="1" height="124" fill="#09090b" opacity="0.35"/>
+  <rect x="172" y="66" width="1" height="124" fill="#09090b" opacity="0.35"/>
+  <rect x="203" y="66" width="1" height="124" fill="#09090b" opacity="0.35"/>
+
+  <!-- Black keys (C# D# F# G# A#) -->
+  <rect x="36"  y="66" width="21" height="78" rx="3" ry="3" fill="#1a1a22"/>
+  <rect x="67"  y="66" width="21" height="78" rx="3" ry="3" fill="#1a1a22"/>
+  <rect x="129" y="66" width="21" height="78" rx="3" ry="3" fill="#1a1a22"/>
+  <rect x="160" y="66" width="21" height="78" rx="3" ry="3" fill="#1a1a22"/>
+  <rect x="191" y="66" width="21" height="78" rx="3" ry="3" fill="#1a1a22"/>
+
+  <!-- Black key top gloss strip -->
+  <rect x="38"  y="68" width="15" height="6" rx="2" ry="2" fill="#2c2c3a"/>
+  <rect x="69"  y="68" width="15" height="6" rx="2" ry="2" fill="#2c2c3a"/>
+  <rect x="131" y="68" width="15" height="6" rx="2" ry="2" fill="#2c2c3a"/>
+  <rect x="162" y="68" width="15" height="6" rx="2" ry="2" fill="#2c2c3a"/>
+  <rect x="193" y="68" width="15" height="6" rx="2" ry="2" fill="#2c2c3a"/>
+
+  <!-- Gold accent dots at bottom -->
+  <circle cx="113" cy="218" r="5" fill="#c49a2a"/>
+  <circle cx="128" cy="220" r="6.5" fill="#d4aa3a"/>
+  <circle cx="143" cy="218" r="5" fill="#c49a2a"/>
+</svg>
