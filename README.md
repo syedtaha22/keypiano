@@ -97,7 +97,7 @@ Place `.kps` or `.mid` files in the `scores/` folder (gitignored). Click **Load 
 ## Project Structure
 
 ```
-piano-app/
+.
 ├── src/
 │   ├── constants.js           Layout constants and keyboard maps
 │   ├── state.js               Shared mutable application state
