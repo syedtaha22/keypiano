@@ -1,7 +1,8 @@
 'use strict';
 
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, dialog } = require('electron');
 const path = require('path');
+const { autoUpdater } = require('electron-updater');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -25,7 +26,24 @@ app.whenReady().then(() => {
   createWindow();
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {createWindow();}
+    if (BrowserWindow.getAllWindows().length === 0) { createWindow(); }
+  });
+
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdatesAndNotify().catch(err => {
+      console.error('[updater]', err.message);
+    });
+  }
+});
+
+autoUpdater.on('update-downloaded', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Update ready',
+    message: 'A new version of KeyPiano has been downloaded. Restart to apply it.',
+    buttons: ['Restart now', 'Later'],
+  }).then(({ response }) => {
+    if (response === 0) { autoUpdater.quitAndInstall(); }
   });
 });
 

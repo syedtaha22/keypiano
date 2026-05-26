@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact_glob: dist/*.exe
+            update_manifest: dist/latest.yml
+
+          - os: macos-latest
+            artifact_glob: dist/*.dmg
+            update_manifest: dist/latest-mac.yml
+
+          - os: ubuntu-latest
+            artifact_glob: dist/*.AppImage
+            update_manifest: dist/latest-linux.yml
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build distributable
+        run: npx electron-builder --publish never
+        env:
+          # Disable auto-discovery of local signing identity so unsigned
+          # builds succeed on macOS runners without a certificate.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ matrix.artifact_glob }}
+            ${{ matrix.update_manifest }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true

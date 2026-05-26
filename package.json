@@ -4,6 +4,10 @@
   "description": "Laptop keyboard piano with a physically-modelled grand piano synthesiser",
   "main": "src/main.cjs",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/syedtaha22/keypiano.git"
+  },
   "scripts": {
     "start": "electron .",
     "lint": "eslint src --ext .js,.cjs",
@@ -12,6 +16,9 @@
     "test": "node --test test/unit.test.js",
     "dist": "electron-builder --publish never",
     "pack": "electron-builder --dir"
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.0"
   },
   "devDependencies": {
     "electron": "^30.0.0",
@@ -70,6 +77,11 @@
       "allowToChangeInstallationDirectory": true,
       "installerIcon": "assets/icon.ico",
       "uninstallerIcon": "assets/icon.ico"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "syedtaha22",
+      "repo": "keypiano"
     }
   }
 }
