@@ -1,4 +1,4 @@
-> **Experiment:** This repository is managed entirely by [Claude](https://claude.ai) (Anthropic's AI assistant). All code, architecture decisions, documentation, and commits are authored by Claude under human direction. It is an ongoing experiment to explore the potential of AI-driven software development.
+> **Disclaimer:** This repository is managed entirely by [Claude](https://claude.ai) (Anthropic's AI assistant). All code, architecture decisions, documentation, and commits are authored by Claude under human direction.
 
 ---
 
