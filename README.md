@@ -82,8 +82,8 @@ Built with **Electron** and the **Web Audio API**. Audio is synthesised using a 
 ### Install & Run
 
 ```bash
-git clone <repo-url>
-cd piano-app
+git clone https://github.com/syedtaha22/keypiano.git
+cd keypiano
 npm install
 npm start
 ```
