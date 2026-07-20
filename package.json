@@ -11,8 +11,8 @@
   },
   "scripts": {
     "start": "electron .",
-    "lint": "eslint src --ext .js,.cjs",
-    "lint:fix": "eslint src --ext .js,.cjs --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "format": "prettier --write \"src/**/*.{js,cjs}\"",
     "test": "node --test test/unit.test.js",
     "dist": "electron-builder --publish never",
@@ -22,9 +22,10 @@
     "electron-updater": "^6.3.0"
   },
   "devDependencies": {
-    "electron": "^30.0.0",
-    "electron-builder": "^24.13.3",
-    "eslint": "^8.57.0",
+    "electron": "^43.1.1",
+    "electron-builder": "^26.15.3",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
     "playwright": "^1.60.0",
     "prettier": "^3.2.0"
   },
